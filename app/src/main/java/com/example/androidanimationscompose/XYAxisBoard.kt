@@ -23,7 +23,7 @@ fun XYAxisBoard(
 
     if (step < 0f) throw Exception("Value for step must be positive. Current value is $step")
 
-    val divisionLength = step / 2f
+    val divisionLength = 10f
     val textSizePixels = 30f
 
     val textPaintX = Paint().apply {
