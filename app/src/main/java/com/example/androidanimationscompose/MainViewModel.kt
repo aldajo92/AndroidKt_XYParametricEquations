@@ -9,7 +9,7 @@ class MainViewModel(
     private val expressionParser: ExpressionParser = ExpressionParser()
 ) : ViewModel() {
 
-    private val _tParameter = MutableStateFlow(-10f)
+    private val _tParameter = MutableStateFlow(0f)
     val tParameterStateFlow get() : StateFlow<Float> = _tParameter
 
     private val _equationXUIStateFlow = MutableStateFlow(EquationUIState("t*cos(t)"))

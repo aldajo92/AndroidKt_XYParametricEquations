@@ -338,18 +338,14 @@ fun AnimatedCircleV2(
         .invertYaxis()
         .toOffset(step)
         .let {
-            Log.i("AnimatedCircleV2", "circleCenterOffsetMid: $it")
             if (it == Offset.Unspecified) Offset(0f, 0f) else it
         }
         .translate(pointOrigin)
 
-    Log.i("AnimatedCircleV2", "circleCenterOffset: $circleCenterOffset")
-    Log.i("AnimatedCircleV2", "pointOrigin: $pointOrigin")
-
     if (step > 0) Canvas(modifier = modifier.fillMaxSize()) {
         drawCircle(
             color = circleColor,
-            radius = 50f,
+            radius = 40f,
             center = circleCenterOffset,
             style = Stroke(5f)
         )
