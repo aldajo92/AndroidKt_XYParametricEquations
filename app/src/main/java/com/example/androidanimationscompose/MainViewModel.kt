@@ -9,13 +9,13 @@ class MainViewModel(
     private val expressionParser: ExpressionParser = ExpressionParser()
 ) : ViewModel() {
 
-    private val tParameter = MutableStateFlow(0f)
-    val tParameterStateFlow get() : StateFlow<Float> = tParameter
+    private val _tParameter = MutableStateFlow(-10f)
+    val tParameterStateFlow get() : StateFlow<Float> = _tParameter
 
-    private val _equationXUIStateFlow = MutableStateFlow(EquationUIState())
+    private val _equationXUIStateFlow = MutableStateFlow(EquationUIState("t*cos(t)"))
     val equationXUIStateFlow: StateFlow<EquationUIState> = _equationXUIStateFlow
 
-    private val _equationYUIStateFlow = MutableStateFlow(EquationUIState())
+    private val _equationYUIStateFlow = MutableStateFlow(EquationUIState("t*sin(t)"))
     val equationYUIStateFlow: StateFlow<EquationUIState> = _equationYUIStateFlow
 
     fun evaluateInEquation(t: Float): Point {
@@ -48,7 +48,7 @@ class MainViewModel(
         }
         var showError = false
         var errorMessage = ""
-        evaluate(tParameter.value, equationString) {
+        evaluate(_tParameter.value, equationString) {
             showError = true
             errorMessage = it
         }
@@ -70,7 +70,7 @@ class MainViewModel(
         }
         var showError = false
         var errorMessage = ""
-        evaluate(tParameter.value, equationString) {
+        evaluate(_tParameter.value, equationString) {
             showError = true
             errorMessage = it
         }
@@ -82,7 +82,7 @@ class MainViewModel(
     }
 
     fun setTParameter(t: Float) {
-        tParameter.value = t
+        _tParameter.value = t
     }
 
 }

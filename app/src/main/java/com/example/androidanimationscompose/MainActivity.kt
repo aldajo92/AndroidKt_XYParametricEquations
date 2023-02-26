@@ -3,13 +3,16 @@ package com.example.androidanimationscompose
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -37,10 +40,12 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.androidanimationscompose.ui.theme.AndroidAnimationsComposeTheme
@@ -95,31 +100,35 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                         Column(Modifier.fillMaxWidth()) {
-                            InputVariableField(
+                            Row(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 8.dp),
-                                textTitle = "X(t)=",
-                                textValue = equationXUIState.equationString,
-                                onValueChange = {
-                                    viewModel.setEquationStringX(it)
-                                },
-                                showError = equationXUIState.showError,
-                                errorMessage = equationXUIState.errorMessage
-                            )
-                            InputVariableField(
-                                modifier = Modifier
-                                    .fillMaxWidth()
                                     .padding(horizontal = 8.dp)
-                                    .padding(bottom = 8.dp),
-                                textTitle = "Y(t)=",
-                                textValue = equationYUIState.equationString,
-                                onValueChange = {
-                                    viewModel.setEquationStringY(it)
-                                },
-                                showError = equationYUIState.showError,
-                                errorMessage = equationYUIState.errorMessage
-                            )
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                InputVariableField(
+                                    modifier = Modifier
+                                        .weight(1f),
+                                    textTitle = "X(t)=",
+                                    textValue = equationXUIState.equationString,
+                                    onValueChange = {
+                                        viewModel.setEquationStringX(it)
+                                    },
+                                    showError = equationXUIState.showError,
+                                    errorMessage = equationXUIState.errorMessage
+                                )
+                                InputVariableField(
+                                    modifier = Modifier
+                                        .weight(1f),
+                                    textTitle = "Y(t)=",
+                                    textValue = equationYUIState.equationString,
+                                    onValueChange = {
+                                        viewModel.setEquationStringY(it)
+                                    },
+                                    showError = equationYUIState.showError,
+                                    errorMessage = equationYUIState.errorMessage
+                                )
+                            }
                             Row(modifier = Modifier.fillMaxWidth()) {
                                 Text(
                                     modifier = Modifier
@@ -129,7 +138,7 @@ class MainActivity : ComponentActivity() {
                                 )
                                 SimpleContinuousSlider(
                                     modifier = Modifier.weight(1f),
-                                    range = -10f..10f,
+                                    range = -100f..100f,
                                 ) {
                                     viewModel.setTParameter(it)
                                 }
@@ -155,9 +164,16 @@ fun InputVariableField(
     val keyboardController = LocalSoftwareKeyboardController.current
     OutlinedTextField(
         modifier = modifier
+            .defaultMinSize(minHeight = 10.dp)
             .fillMaxWidth(),
+        textStyle = TextStyle(fontSize = 10.sp),
         value = textValue,
-        label = { if (showError) Text(errorMessage) else Text(textTitle) },
+        label = {
+            Text(
+                text = if (showError) errorMessage else textTitle,
+                fontSize = 10.sp
+            )
+        },
         onValueChange = onValueChange,
         isError = showError,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -251,7 +267,7 @@ fun RenderXYBoardUI(
                         )
                     )
                     layout(placeable.height, placeable.width) {
-                        placeable.place(0, -placeable.width + 150)
+                        placeable.place(0, -(placeable.width * 0.75f).toInt())
                     }
                 }
                 .align(Alignment.TopStart),
@@ -321,7 +337,14 @@ fun AnimatedCircleV2(
     val circleCenterOffset = circleCenter
         .invertYaxis()
         .toOffset(step)
+        .let {
+            Log.i("AnimatedCircleV2", "circleCenterOffsetMid: $it")
+            if (it == Offset.Unspecified) Offset(0f, 0f) else it
+        }
         .translate(pointOrigin)
+
+    Log.i("AnimatedCircleV2", "circleCenterOffset: $circleCenterOffset")
+    Log.i("AnimatedCircleV2", "pointOrigin: $pointOrigin")
 
     if (step > 0) Canvas(modifier = modifier.fillMaxSize()) {
         drawCircle(
