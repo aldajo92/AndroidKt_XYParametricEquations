@@ -9,7 +9,7 @@ data class Point(val x: Float, val y: Float) {
     operator fun div(value: Float) = Point(x / value, y / value)
 }
 
-fun Point.toOffset() = Offset(x, y)
+fun Point.toOffset(step: Float) = Offset(x * step, y * step)
 fun Point.translate(a: Float, b: Float) = Point(x + a, y + b)
 fun Point.translate(point: Point) = Point(x + point.x, y + point.y)
 fun Point.revertTranslate(a: Float, b: Float) = Point(x - a, y - b)

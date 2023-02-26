@@ -11,11 +11,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,44 +29,85 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.androidanimationscompose.ui.theme.AndroidAnimationsComposeTheme
+import kotlin.math.min
 import kotlin.math.pow
+
+
+/* TODO:
+* Support DarkMode
+* Add resolution for x, y steps in the plane (Done)
+* Add input text for equations.
+* Add slider for parameter
+* Add configuration section
+*  */
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             AndroidAnimationsComposeTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
+                val resolution = 50f
+
+                var width by remember { mutableStateOf(0f) }
+                var height by remember { mutableStateOf(0f) }
+                var step by remember { mutableStateOf(0f) }
+
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                width = placeable.width.toFloat()
+                                height = placeable.height.toFloat()
+                                step = min(width, height) / resolution
+                                placeable.placeRelative(0, 0)
+                            }
+                        }
                 ) {
-                    XYAxisBoard(modifier = Modifier.fillMaxSize().background(Color.White))
-                    AnimatedCircleV2(modifier = Modifier.fillMaxSize())
+                    val screenBottomRightCorner = Offset(width, height)
+                    val newOriginOffset = screenBottomRightCorner / 2f
+                    XYAxisBoard(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.White),
+                        pointOrigin = newOriginOffset,
+                        width = width,
+                        height = height,
+                        step = step
+                    )
+                    AnimatedCircleV2(
+                        modifier = Modifier.fillMaxSize(),
+                        pointOrigin = newOriginOffset,
+                        step = step
+                    )
                 }
             }
         }
     }
 }
 
-
-@Preview
 @Composable
-fun AnimatedCircleV2(modifier: Modifier = Modifier) {
+fun BoxScope.AnimatedCircleV2(
+    modifier: Modifier = Modifier,
+    circleColor: Color = Color.Blue,
+    lineColor: Color = Color.Blue,
+    textColor: Color = Color.Black,
+    pointOrigin: Offset,
+    step: Float,
+) {
+
+    val tParameterStart = 0f
+    val tParameterEnd = 5f
+
     var isRunning by remember { mutableStateOf(false) }
-
-    var width by remember { mutableStateOf(0f) }
-    var height by remember { mutableStateOf(0f) }
-
-
     val pathEffect = remember {
         PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
     }
 
-    var tParameter by remember { mutableStateOf(-3f) }
+    var tParameter by remember { mutableStateOf(tParameterStart) }
     val tAnimation2 = remember { Animatable(tParameter, Float.VectorConverter) }
     val animationSpec = remember {
         InfiniteRepeatableSpec<Float>(
@@ -76,9 +116,9 @@ fun AnimatedCircleV2(modifier: Modifier = Modifier) {
     }
     LaunchedEffect(isRunning) {
         if (isRunning) {
-            tAnimation2.snapTo(-3f)
+            tAnimation2.snapTo(tParameterStart)
             tAnimation2.animateTo(
-                targetValue = 5f,
+                targetValue = tParameterEnd,
                 animationSpec = animationSpec
             ) {
                 tParameter = this.value
@@ -86,66 +126,52 @@ fun AnimatedCircleV2(modifier: Modifier = Modifier) {
         }
     }
 
-    Box(
-        modifier = modifier
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) {
-                    width = placeable.width.toFloat()
-                    height = placeable.height.toFloat()
-                    placeable.placeRelative(0, 0)
-                }
-            }
-    ) {
-        val screenBottomRightCorner = Point(width, height)
-        val newOrigin = screenBottomRightCorner / 2f
+    val circleInitialCenter = Point(10f, 10f)
+    val pDirector = Point(-1f, 1f)
 
-        val circleInitialCenter = Point(0f, 200f)
-        val pDirector = Point(-100f, 100f)
+    val circleCenter = rectLine(circleInitialCenter, pDirector, tParameter)
+        .invertYaxis()
+        .translate(pointOrigin.x / step, pointOrigin.y / step)
 
-        val circleCenter = rectLine(circleInitialCenter, pDirector, tParameter)
-            .invertYaxis().translate(newOrigin)
+    val circleCenterOffset = circleCenter.toOffset(step)
 
-//        val circleCenter = parabola(tParameter)
-//            .invertYaxis().translate(newOrigin)
-
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            drawCircle(
-                color = Color.Blue,
-                radius = size.minDimension / 20,
-                center = circleCenter.toOffset(),
-                style = Stroke(5f)
-            )
-            drawLine(
-                color = Color.Blue,
-                start = Offset(newOrigin.x, circleCenter.y),
-                end = circleCenter.toOffset(),
-                pathEffect = pathEffect
-            )
-            drawLine(
-                color = Color.Blue,
-                start = Offset(circleCenter.x, newOrigin.y),
-                end = circleCenter.toOffset(),
-                pathEffect = pathEffect
-            )
-        }
-        Text(
-            modifier = Modifier.padding(10.dp),
-            text = "t: ${String.format("%.2f", tParameter)}"
+    if (step > 0) Canvas(modifier = modifier.fillMaxSize()) {
+        drawCircle(
+            color = circleColor,
+            radius = 50f,
+            center = circleCenterOffset,
+            style = Stroke(5f)
         )
-        Button(
-            modifier = Modifier
-                .padding(10.dp)
-                .align(Alignment.TopEnd),
-            onClick = {
-                isRunning = !isRunning
-            }
-        ) {
-            Text(if (isRunning) "Stop Animation" else "Start Animation")
+        drawLine(
+            color = lineColor,
+            start = Offset(pointOrigin.x, circleCenterOffset.y),
+            end = circleCenterOffset,
+            pathEffect = pathEffect
+        )
+        drawLine(
+            color = lineColor,
+            start = Offset(circleCenterOffset.x, pointOrigin.y),
+            end = circleCenterOffset,
+            pathEffect = pathEffect
+        )
+    }
+    Text(
+        modifier = Modifier.padding(10.dp),
+        text = "t: ${String.format("%.2f", tParameter)}",
+        color = textColor
+    )
+    Button(
+        modifier = Modifier
+            .padding(10.dp)
+            .align(Alignment.TopEnd),
+        onClick = {
+            isRunning = !isRunning
         }
+    ) {
+        Text(if (isRunning) "Stop Animation" else "Start Animation")
     }
 }
 
 
 fun rectLine(p0: Point, pointDirector: Point, t: Float): Point = p0 + (pointDirector * t)
-fun parabola(t: Float): Point = Point(t*80f, (t*10f).pow(2))
+fun parabola(t: Float): Point = Point(t * 80f, (t * 10f).pow(2))
