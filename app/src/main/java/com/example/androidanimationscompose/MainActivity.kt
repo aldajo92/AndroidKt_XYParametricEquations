@@ -3,7 +3,6 @@ package com.example.androidanimationscompose
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -14,6 +13,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Slider
@@ -26,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -34,6 +36,8 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -138,6 +142,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun InputVariableField(
     modifier: Modifier = Modifier,
@@ -147,14 +152,17 @@ fun InputVariableField(
     errorMessage: String = "Error",
     onValueChange: (String) -> Unit = {}
 ) {
-    Log.i("InputVariableField", "showError: $showError")
+    val keyboardController = LocalSoftwareKeyboardController.current
     OutlinedTextField(
         modifier = modifier
             .fillMaxWidth(),
         value = textValue,
         label = { if (showError) Text(errorMessage) else Text(textTitle) },
         onValueChange = onValueChange,
-        isError = showError
+        isError = showError,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(
+            onDone = { keyboardController?.hide() })
     )
 }
 
@@ -244,7 +252,6 @@ fun RenderXYBoardUI(
                     )
                     layout(placeable.height, placeable.width) {
                         placeable.place(0, -placeable.width + 150)
-//                        placeable.width
                     }
                 }
                 .align(Alignment.TopStart),
