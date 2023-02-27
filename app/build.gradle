@@ -4,14 +4,14 @@ plugins {
 }
 
 android {
-    namespace 'com.aldajo92.androidanimationscompose'
+    namespace 'com.aldajo92.xyparametricequations'
     compileSdk 33
 
     defaultConfig {
         applicationId "com.aldajo92.androidanimationscompose"
         minSdk 24
         targetSdk 33
-        versionCode 1
+        versionCode 4
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
