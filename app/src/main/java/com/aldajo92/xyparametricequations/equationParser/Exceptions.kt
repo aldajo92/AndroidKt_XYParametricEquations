@@ -1,4 +1,4 @@
-package com.example.androidanimationscompose.equationParser
+package com.aldajo92.xyparametricequations.equationParser
 
 class BadSyntaxException(msg: String = "Bad syntax") : Exception(msg)
 

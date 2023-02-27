@@ -1,9 +1,8 @@
-package com.example.androidanimationscompose
+package com.aldajo92.xyparametricequations
 
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -48,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.androidanimationscompose.ui.theme.AndroidAnimationsComposeTheme
+import com.aldajo92.xyparametricequations.ui.theme.AndroidAnimationsComposeTheme
 import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.roundToInt

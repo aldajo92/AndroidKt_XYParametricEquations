@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.androidanimationscompose'
+    namespace 'com.aldajo92.androidanimationscompose'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.androidanimationscompose"
+        applicationId "com.aldajo92.androidanimationscompose"
         minSdk 24
         targetSdk 33
         versionCode 1

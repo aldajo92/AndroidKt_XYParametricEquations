@@ -1,4 +1,4 @@
-package com.example.androidanimationscompose
+package com.aldajo92.xyparametricequations
 
 import androidx.compose.ui.geometry.Offset
 

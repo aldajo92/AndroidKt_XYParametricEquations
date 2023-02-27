@@ -1,4 +1,4 @@
-package com.example.androidanimationscompose.equationParser
+package com.aldajo92.xyparametricequations.equationParser
 
 enum class NormalOperators(val sign: String, val precedence: Int) {
     PLUS("+", 2),

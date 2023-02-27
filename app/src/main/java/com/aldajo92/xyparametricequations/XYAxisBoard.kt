@@ -1,4 +1,4 @@
-package com.example.androidanimationscompose
+package com.aldajo92.xyparametricequations
 
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas

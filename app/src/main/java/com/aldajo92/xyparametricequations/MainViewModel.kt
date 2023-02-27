@@ -1,7 +1,7 @@
-package com.example.androidanimationscompose
+package com.aldajo92.xyparametricequations
 
 import androidx.lifecycle.ViewModel
-import com.example.androidanimationscompose.equationParser.ExpressionParser
+import com.aldajo92.xyparametricequations.equationParser.ExpressionParser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 

@@ -1,6 +1,6 @@
-package com.example.androidanimationscompose
+package com.aldajo92.xyparametricequations
 
-import com.example.androidanimationscompose.equationParser.ExpressionParser
+import com.aldajo92.xyparametricequations.equationParser.ExpressionParser
 import junit.framework.Assert.assertEquals
 import org.junit.Test
 import kotlin.math.PI
