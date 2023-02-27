@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.aldajo92.xyparametricequations.ui.theme.AndroidAnimationsComposeTheme
+import com.aldajo92.xyparametricequations.ui.theme.XYParametricEquationsTheme
 import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AndroidAnimationsComposeTheme {
+            XYParametricEquationsTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
