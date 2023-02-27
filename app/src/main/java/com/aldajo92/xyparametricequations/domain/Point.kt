@@ -1,4 +1,4 @@
-package com.aldajo92.xyparametricequations
+package com.aldajo92.xyparametricequations.domain
 
 import androidx.compose.ui.geometry.Offset
 

@@ -1,6 +1,7 @@
 package com.aldajo92.xyparametricequations
 
 import androidx.lifecycle.ViewModel
+import com.aldajo92.xyparametricequations.domain.Point
 import com.aldajo92.xyparametricequations.equationParser.ExpressionParser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
