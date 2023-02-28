@@ -1,28 +1,27 @@
 package com.aldajo92.xyparametricequations
 
-import android.content.res.Resources
 import android.os.Bundle
-import android.util.DisplayMetrics
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.Card
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Slider
-import androidx.compose.material.SliderDefaults
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,25 +32,20 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.aldajo92.xyparametricequations.domain.Point
+import com.aldajo92.xyparametricequations.domain.SettingsEquation
+import com.aldajo92.xyparametricequations.domain.SettingsType
+import com.aldajo92.xyparametricequations.ui.AnimatedCircleComponent
+import com.aldajo92.xyparametricequations.ui.SimpleContinuousSlider
+import com.aldajo92.xyparametricequations.ui.showAsBottomSheet
 import com.aldajo92.xyparametricequations.ui.theme.XYParametricEquationsTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.min
-import kotlin.math.pow
-import kotlin.math.roundToInt
 
 
 /* TODO:
@@ -59,14 +53,16 @@ import kotlin.math.roundToInt
 * Add resolution for x, y steps in the plane (Done)
 * Add input text for equations. (Done)
 * Add slider for parameter. (Done)
-* Add configuration section.
-* Add animation for parameter.
+* Add configuration section. (Done)
+* Add animation for t parameter.
+* Enable, disable vector for point.
 *  */
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
+    private val settingsViewModel: SettingsViewModel by viewModels()
 
     @OptIn(ExperimentalLifecycleComposeApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +84,11 @@ class MainActivity : ComponentActivity() {
                         EquationUIState()
                     )
 
+                    val settings by viewModel.settingsEquationFlow.collectAsStateWithLifecycle(
+                        initialValue = SettingsEquation(),
+                        lifecycle = lifecycle
+                    )
+
                     Column(modifier = Modifier.fillMaxSize()) {
                         RenderXYBoardUI(
                             modifier = Modifier.weight(1f),
@@ -95,53 +96,136 @@ class MainActivity : ComponentActivity() {
                             tParameter = tParameter,
                             parametricEquation = {
                                 viewModel.evaluateInEquation(it)
-                            },
-                            resolutionChange = {
-                                resolution = it
                             }
                         )
-                        Column(Modifier.fillMaxWidth()) {
-                            Row(
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colors.background)
+                        ) {
+                            InputEquationsRow(
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp)
                                     .fillMaxWidth(),
+                                equationXUIState = equationXUIState,
+                                equationYUIState = equationYUIState,
+                                onEquationExpressionXChange = {
+                                    viewModel.setEquationStringX(it)
+                                },
+                                onEquationExpressionYChange = {
+                                    viewModel.setEquationStringY(it)
+                                }
+                            )
+                            SliderForTParameter(
+                                modifier = Modifier.fillMaxWidth(),
+                                range = settings.getRangeForTParameter(),
+                                onSettingsClicked = {
+                                    showSettingsBottomSheet(
+                                        defaultResolution = resolution,
+                                        resolutionChange = {
+                                            resolution = it
+                                        }
+                                    )
+                                }
+                            ) {
+                                viewModel.setTParameter(it)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalComposeUiApi::class)
+    private fun showSettingsBottomSheet(
+        resolutionChange: (Float) -> Unit = {},
+        defaultResolution: Float = 50f
+    ) {
+        this.showAsBottomSheet { dismissDialog ->
+            var currentResolution by remember { mutableStateOf(defaultResolution) }
+
+            val tMinValueField by settingsViewModel.minField.collectAsStateWithLifecycle()
+            val tMaxValueField by settingsViewModel.maxField.collectAsStateWithLifecycle()
+
+            val enableButtonState by settingsViewModel.enableButtonStateFlow.collectAsStateWithLifecycle(
+                false
+            )
+
+            XYParametricEquationsTheme {
+                Surface(
+                    color = Color.Transparent
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
+                        backgroundColor = MaterialTheme.colors.background,
+                    ) {
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text(
+                                text = "Settings",
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                            )
+                            Text(
+                                text = "Resolution: ${String.format("%.2f", currentResolution)}",
+                                modifier = Modifier
+                            )
+                            SimpleContinuousSlider(
+                                modifier = Modifier.fillMaxWidth(),
+                                range = 12f..100f,
+                                startValue = defaultResolution
+                            ) {
+                                resolutionChange(it)
+                                currentResolution = it
+                            }
+                            Text(
+                                text = "Parameter t:",
+                                modifier = Modifier
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                InputVariableField(
+                                val keyboardController = LocalSoftwareKeyboardController.current
+                                InputNumberField(
                                     modifier = Modifier
                                         .weight(1f),
-                                    textTitle = "X(t)=",
-                                    textValue = equationXUIState.equationString,
-                                    onValueChange = {
-                                        viewModel.setEquationStringX(it)
-                                    },
-                                    showError = equationXUIState.showError,
-                                    errorMessage = equationXUIState.errorMessage
-                                )
-                                InputVariableField(
-                                    modifier = Modifier
-                                        .weight(1f),
-                                    textTitle = "Y(t)=",
-                                    textValue = equationYUIState.equationString,
-                                    onValueChange = {
-                                        viewModel.setEquationStringY(it)
-                                    },
-                                    showError = equationYUIState.showError,
-                                    errorMessage = equationYUIState.errorMessage
-                                )
-                            }
-                            Row(modifier = Modifier.fillMaxWidth()) {
-                                Text(
-                                    modifier = Modifier
-                                        .align(Alignment.CenterVertically)
-                                        .padding(8.dp),
-                                    text = "t="
-                                )
-                                SimpleContinuousSlider(
-                                    modifier = Modifier.weight(1f),
-                                    range = -100f..100f,
+                                    textTitle = "Min:",
+                                    textValue = tMinValueField.value,
+                                    showError = tMinValueField.showError,
+                                    errorMessage = tMinValueField.errorMessage,
+                                    keyboardController = keyboardController
                                 ) {
-                                    viewModel.setTParameter(it)
+                                    settingsViewModel.updateSettings(it, SettingsType.MIN_T)
+                                }
+                                InputNumberField(
+                                    modifier = Modifier
+                                        .weight(1f),
+                                    textTitle = "Max:",
+                                    textValue = tMaxValueField.value,
+                                    showError = tMaxValueField.showError,
+                                    errorMessage = tMaxValueField.errorMessage,
+                                    keyboardController = keyboardController
+                                ) {
+                                    settingsViewModel.updateSettings(it, SettingsType.MAX_T)
+                                }
+                                Button(
+                                    modifier = Modifier.align(Alignment.Bottom),
+                                    enabled = enableButtonState,
+                                    onClick = {
+                                        settingsViewModel.saveData()
+                                        dismissDialog()
+                                        keyboardController?.hide()
+                                    })
+                                {
+                                    Text(text = "Save")
                                 }
                             }
                         }
@@ -152,59 +236,68 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun InputVariableField(
+fun InputEquationsRow(
     modifier: Modifier = Modifier,
-    textTitle: String = "X",
-    textValue: String = "",
-    showError: Boolean = false,
-    errorMessage: String = "Error",
-    onValueChange: (String) -> Unit = {}
+    equationXUIState: EquationUIState = EquationUIState(),
+    equationYUIState: EquationUIState = EquationUIState(),
+    onEquationExpressionXChange: (String) -> Unit = {},
+    onEquationExpressionYChange: (String) -> Unit = {},
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    OutlinedTextField(
-        modifier = modifier
-            .defaultMinSize(minHeight = 10.dp)
-            .fillMaxWidth(),
-        textStyle = TextStyle(fontSize = 10.sp),
-        value = textValue,
-        label = {
-            Text(
-                text = if (showError) errorMessage else textTitle,
-                fontSize = 10.sp
-            )
-        },
-        onValueChange = onValueChange,
-        isError = showError,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(
-            onDone = { keyboardController?.hide() })
-    )
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        InputStringField(
+            modifier = Modifier
+                .weight(1f),
+            textTitle = "X(t)=",
+            textValue = equationXUIState.equationString,
+            onValueChange = onEquationExpressionXChange,
+            showError = equationXUIState.showError,
+            errorMessage = equationXUIState.errorMessage
+        )
+        InputStringField(
+            modifier = Modifier
+                .weight(1f),
+            textTitle = "Y(t)=",
+            textValue = equationYUIState.equationString,
+            onValueChange = onEquationExpressionYChange,
+            showError = equationYUIState.showError,
+            errorMessage = equationYUIState.errorMessage
+        )
+    }
 }
 
 @Composable
-fun SimpleContinuousSlider(
+fun SliderForTParameter(
     modifier: Modifier = Modifier,
     range: ClosedFloatingPointRange<Float> = 0f..100f,
-    startValue: Float = (range.start + range.endInclusive) / 2f,
+    onSettingsClicked: () -> Unit = {},
     onValueChanged: (Float) -> Unit = {}
 ) {
-    var selection by remember { mutableStateOf(startValue) }
-
-    Slider(
-        modifier = modifier,
-        value = selection,
-        valueRange = range,
-        onValueChange = {
-            selection = it
-            onValueChanged(it)
-        },
-        colors = SliderDefaults.colors(
-            activeTrackColor = Color.Transparent,
-            inactiveTrackColor = MaterialTheme.colors.primary.copy(alpha = 0.2f)
+    Row(modifier = modifier) {
+        Text(
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .padding(8.dp),
+            text = "t="
         )
-    )
+        SimpleContinuousSlider(
+            modifier = Modifier.weight(1f),
+            range = range,
+            onValueChanged = onValueChanged
+        )
+        Icon(
+            modifier = Modifier
+                .padding(8.dp)
+                .align(Alignment.CenterVertically)
+                .clickable { onSettingsClicked() },
+            imageVector = Icons.Default.Settings,
+            tint = MaterialTheme.colors.onBackground,
+            contentDescription = "Settings"
+        )
+    }
 }
 
 @Composable
@@ -212,8 +305,7 @@ fun RenderXYBoardUI(
     modifier: Modifier = Modifier,
     resolution: Float = 50f,
     tParameter: Float = 0f,
-    parametricEquation: (Float) -> Point = { Point(it, it) },
-    resolutionChange: (Float) -> Unit = {}
+    parametricEquation: (Float) -> Point = { Point(it, it) }
 ) {
     var width by remember { mutableStateOf(0f) }
     var height by remember { mutableStateOf(0f) }
@@ -242,7 +334,7 @@ fun RenderXYBoardUI(
             colorAxisX = MaterialTheme.colors.onBackground,
             colorAxisY = MaterialTheme.colors.onBackground
         )
-        AnimatedCircleV2(
+        AnimatedCircleComponent(
             modifier = Modifier.fillMaxSize(),
             pointOrigin = newOriginOffset,
             step = step,
@@ -252,135 +344,5 @@ fun RenderXYBoardUI(
             tParameter = tParameter,
             parametricEquation = parametricEquation
         )
-        SimpleContinuousSlider(
-            modifier = Modifier
-                .graphicsLayer {
-                    rotationZ = 90f
-                    transformOrigin = TransformOrigin(0f, 0f)
-                }
-                .layout { measurable, constraints ->
-                    val placeable = measurable.measure(
-                        Constraints(
-                            minWidth = constraints.minHeight,
-                            maxWidth = constraints.maxHeight,
-                            minHeight = constraints.minWidth,
-                            maxHeight = constraints.maxHeight,
-                        )
-                    )
-                    layout(placeable.height, placeable.width) {
-                        placeable.place(0, -(placeable.width * 0.75f).toInt())
-                    }
-                }
-                .align(Alignment.TopStart),
-            range = 12f..100f,
-            startValue = resolution
-        ) {
-            resolutionChange(it)
-        }
-//        {
-////            val circleInitialCenter = Point(10f, 10f)
-////            val pDirector = Point(-1f, 1f)
-////            rectLine(circleInitialCenter, pDirector, tParameter)
-//            parabola(it)
-//        }
     }
 }
-
-fun Float.convertPixelsToDp(): Dp {
-    val metrics: DisplayMetrics = Resources.getSystem().displayMetrics
-    val dp = this / (metrics.densityDpi / 160f)
-    return dp.roundToInt().dp
-}
-
-@Composable
-fun AnimatedCircleV2(
-    modifier: Modifier = Modifier,
-    circleColor: Color = Color.Blue,
-    lineColor: Color = Color.Blue,
-    textColor: Color = Color.Black,
-    pointOrigin: Offset,
-    step: Float,
-    tParameter: Float = 0f,
-    parametricEquation: (Float) -> Point = { Point(it, it) }
-) {
-
-//    TODO: Pending to move it as a separate feature
-//    val tParameterStart = 0f
-//    val tParameterEnd = 5f
-
-//    var isRunning by remember { mutableStateOf(false) }
-
-//    var tParameter by remember { mutableStateOf(tParameterStart) }
-//    val tAnimation2 = remember { Animatable(tParameter, Float.VectorConverter) }
-//    val animationSpec = remember {
-//        InfiniteRepeatableSpec<Float>(
-//            tween(durationMillis = 5000, easing = LinearEasing)
-//        )
-//    }
-//    LaunchedEffect(isRunning) {
-//        if (isRunning) {
-//            tAnimation2.snapTo(tParameterStart)
-//            tAnimation2.animateTo(
-//                targetValue = tParameterEnd,
-//                animationSpec = animationSpec
-//            ) {
-//                tParameter = this.value
-//            }
-//        }
-//    }
-
-    val pathEffect = remember {
-        PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-    }
-
-    val circleCenter = parametricEquation(tParameter)
-
-    val circleCenterOffset = circleCenter
-        .invertYaxis()
-        .toOffset(step)
-        .let {
-            if (it == Offset.Unspecified) Offset(0f, 0f) else it
-        }
-        .translate(pointOrigin)
-
-    if (step > 0) Canvas(modifier = modifier.fillMaxSize()) {
-        drawCircle(
-            color = circleColor,
-            radius = 40f,
-            center = circleCenterOffset,
-            style = Stroke(5f)
-        )
-        drawLine(
-            color = lineColor,
-            start = Offset(pointOrigin.x, circleCenterOffset.y),
-            end = circleCenterOffset,
-            pathEffect = pathEffect
-        )
-        drawLine(
-            color = lineColor,
-            start = Offset(circleCenterOffset.x, pointOrigin.y),
-            end = circleCenterOffset,
-            pathEffect = pathEffect
-        )
-    }
-    Text(
-        modifier = Modifier.padding(10.dp),
-        text = "t: ${String.format("%.2f", tParameter)}",
-        color = textColor
-    )
-//    TODO: Pending to move it as a separate feature
-//    Button(
-//        modifier = Modifier
-//            .padding(10.dp)
-//            .align(Alignment.TopEnd),
-//        onClick = {
-//            isRunning = !isRunning
-//        }
-//    ) {
-//        Text(if (isRunning) "Stop Animation" else "Start Animation")
-//    }
-}
-
-
-fun rectLine(p0: Point, pointDirector: Point, t: Float): Point = p0 + (pointDirector * t)
-fun parabola(t: Float): Point = Point(t * 20f, (t * 5f).pow(2))

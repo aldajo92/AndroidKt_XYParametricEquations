@@ -1,19 +1,36 @@
 package com.aldajo92.xyparametricequations
 
 import androidx.lifecycle.ViewModel
+import com.aldajo92.xyparametricequations.domain.Point
+import com.aldajo92.xyparametricequations.domain.SettingsEquation
+import com.aldajo92.xyparametricequations.domain.SettingsType
 import com.aldajo92.xyparametricequations.equationParser.ExpressionParser
+import com.aldajo92.xyparametricequations.repositories.DataRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    private val settingsRepository: DataRepository<SettingsType, SettingsEquation>
 ) : ViewModel() {
 
     private val expressionParser: ExpressionParser = ExpressionParser()
 
     private val _tParameter = MutableStateFlow(0f)
     val tParameterStateFlow get() : StateFlow<Float> = _tParameter
+
+    val settingsEquationFlow = settingsRepository.getSettingsChangedFlow()
+        .map {
+            val currentTParameter = _tParameter.value
+            val tMin = it.tMin
+            val tMax = it.tMax
+            if (currentTParameter < tMin) _tParameter.value = tMin
+            else if (currentTParameter > tMax) _tParameter.value = tMax
+            it
+        }
 
     private val _equationXUIStateFlow = MutableStateFlow(EquationUIState("t*cos(t)"))
     val equationXUIStateFlow: StateFlow<EquationUIState> = _equationXUIStateFlow
