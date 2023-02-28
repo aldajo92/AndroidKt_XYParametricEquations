@@ -31,14 +31,14 @@ fun InputStringField(
     val keyboardController = LocalSoftwareKeyboardController.current
     OutlinedTextField(
         modifier = modifier
-            .defaultMinSize(minHeight = 10.dp)
+            .defaultMinSize(minHeight = 12.dp)
             .fillMaxWidth(),
-        textStyle = TextStyle(fontSize = 10.sp),
+        textStyle = TextStyle(fontSize = 12.sp),
         value = textValue,
         label = {
             Text(
                 text = if (showError) errorMessage else textTitle,
-                fontSize = 10.sp
+                fontSize = 12.sp
             )
         },
         onValueChange = onValueChange,
