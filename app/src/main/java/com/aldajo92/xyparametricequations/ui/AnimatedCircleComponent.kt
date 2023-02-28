@@ -23,6 +23,7 @@ fun AnimatedCircleComponent(
     circleColor: Color = Color.Blue,
     lineColor: Color = Color.Blue,
     textColor: Color = Color.Black,
+    circleSize : Float = 40f,
     pointOrigin: Offset,
     step: Float,
     tParameter: Float = 0f,
@@ -71,7 +72,7 @@ fun AnimatedCircleComponent(
     if (step > 0) Canvas(modifier = modifier.fillMaxSize()) {
         drawCircle(
             color = circleColor,
-            radius = 40f,
+            radius = circleSize,
             center = circleCenterOffset,
             style = Stroke(5f)
         )

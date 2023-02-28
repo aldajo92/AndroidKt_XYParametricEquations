@@ -41,6 +41,7 @@ import com.aldajo92.xyparametricequations.domain.Point
 import com.aldajo92.xyparametricequations.domain.SettingsEquation
 import com.aldajo92.xyparametricequations.domain.SettingsType
 import com.aldajo92.xyparametricequations.ui.AnimatedCircleComponent
+import com.aldajo92.xyparametricequations.ui.SettingsComponentSlider
 import com.aldajo92.xyparametricequations.ui.SimpleContinuousSlider
 import com.aldajo92.xyparametricequations.ui.showAsBottomSheet
 import com.aldajo92.xyparametricequations.ui.theme.XYParametricEquationsTheme
@@ -74,6 +75,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
                     var resolution by remember { mutableStateOf(50f) }
+                    var circleSize by remember { mutableStateOf(40f) }
 
                     val tParameter by viewModel.tParameterStateFlow.collectAsStateWithLifecycle()
 
@@ -93,6 +95,7 @@ class MainActivity : ComponentActivity() {
                         RenderXYBoardUI(
                             modifier = Modifier.weight(1f),
                             resolution = resolution,
+                            circleSize = circleSize,
                             tParameter = tParameter,
                             parametricEquation = {
                                 viewModel.evaluateInEquation(it)
@@ -121,10 +124,14 @@ class MainActivity : ComponentActivity() {
                                 range = settings.getRangeForTParameter(),
                                 onSettingsClicked = {
                                     showSettingsBottomSheet(
-                                        defaultResolution = resolution,
                                         resolutionChange = {
                                             resolution = it
-                                        }
+                                        },
+                                        circleSizeChange = {
+                                            circleSize = it
+                                        },
+                                        defaultResolution = resolution,
+                                        defaultCircleSize = circleSize
                                     )
                                 }
                             ) {
@@ -140,10 +147,16 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalComposeUiApi::class)
     private fun showSettingsBottomSheet(
         resolutionChange: (Float) -> Unit = {},
-        defaultResolution: Float = 50f
+        circleSizeChange: (Float) -> Unit = {},
+        defaultResolution: Float = 50f,
+        defaultCircleSize: Float = 40f,
     ) {
         this.showAsBottomSheet { dismissDialog ->
+            // TODO: Consider using a ViewModel for this
             var currentResolution by remember { mutableStateOf(defaultResolution) }
+
+            // TODO: Consider using a ViewModel for this
+            var currentCircleSize by remember { mutableStateOf(defaultCircleSize) }
 
             val tMinValueField by settingsViewModel.minField.collectAsStateWithLifecycle()
             val tMaxValueField by settingsViewModel.maxField.collectAsStateWithLifecycle()
@@ -173,14 +186,30 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier
                                     .align(Alignment.CenterHorizontally)
                             )
-                            Text(
-                                text = "Resolution: ${String.format("%.2f", currentResolution)}",
-                                modifier = Modifier
-                            )
-                            SimpleContinuousSlider(
+                            SettingsComponentSlider(
                                 modifier = Modifier.fillMaxWidth(),
-                                range = 12f..100f,
-                                startValue = defaultResolution
+                                textTitle = "Circle Size: ${
+                                    String.format(
+                                        "%.2f",
+                                        currentCircleSize
+                                    )
+                                }",
+                                startValue = defaultCircleSize,
+                                range = 1f..40f
+                            ) {
+                                circleSizeChange(it)
+                                currentCircleSize = it
+                            }
+                            SettingsComponentSlider(
+                                modifier = Modifier.fillMaxWidth(),
+                                textTitle = "Resolution: ${
+                                    String.format(
+                                        "%.2f",
+                                        currentResolution
+                                    )
+                                }",
+                                startValue = defaultResolution,
+                                range = 12f..100f
                             ) {
                                 resolutionChange(it)
                                 currentResolution = it
@@ -305,6 +334,7 @@ fun RenderXYBoardUI(
     modifier: Modifier = Modifier,
     resolution: Float = 50f,
     tParameter: Float = 0f,
+    circleSize: Float = 40f,
     parametricEquation: (Float) -> Point = { Point(it, it) }
 ) {
     var width by remember { mutableStateOf(0f) }
@@ -342,6 +372,7 @@ fun RenderXYBoardUI(
             lineColor = MaterialTheme.colors.onBackground,
             textColor = MaterialTheme.colors.onBackground,
             tParameter = tParameter,
+            circleSize = circleSize,
             parametricEquation = parametricEquation
         )
     }
