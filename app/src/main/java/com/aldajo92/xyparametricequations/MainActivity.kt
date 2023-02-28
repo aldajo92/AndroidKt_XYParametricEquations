@@ -251,7 +251,7 @@ fun InputEquationsRow(
         InputStringField(
             modifier = Modifier
                 .weight(1f),
-            textTitle = "X(t)=",
+            textTitle = "x(t)=",
             textValue = equationXUIState.equationString,
             onValueChange = onEquationExpressionXChange,
             showError = equationXUIState.showError,
@@ -260,7 +260,7 @@ fun InputEquationsRow(
         InputStringField(
             modifier = Modifier
                 .weight(1f),
-            textTitle = "Y(t)=",
+            textTitle = "y(t)=",
             textValue = equationYUIState.equationString,
             onValueChange = onEquationExpressionYChange,
             showError = equationYUIState.showError,
