@@ -1,4 +1,4 @@
-package com.aldajo92.xyparametricequations
+package com.aldajo92.xyparametricequations.ui
 
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth

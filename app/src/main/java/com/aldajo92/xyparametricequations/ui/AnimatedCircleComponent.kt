@@ -2,8 +2,6 @@ package com.aldajo92.xyparametricequations.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -11,7 +9,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.unit.dp
 import com.aldajo92.xyparametricequations.domain.Point
 import com.aldajo92.xyparametricequations.domain.invertYaxis
 import com.aldajo92.xyparametricequations.domain.toOffset
@@ -22,7 +19,6 @@ fun AnimatedCircleComponent(
     modifier: Modifier = Modifier,
     circleColor: Color = Color.Blue,
     lineColor: Color = Color.Blue,
-    textColor: Color = Color.Black,
     circleSize : Float = 40f,
     pointOrigin: Offset,
     step: Float,
@@ -89,11 +85,6 @@ fun AnimatedCircleComponent(
             pathEffect = pathEffect
         )
     }
-    Text(
-        modifier = Modifier.padding(10.dp),
-        text = "t: ${String.format("%.2f", tParameter)}",
-        color = textColor
-    )
 //    TODO: Pending to move it as a separate feature
 //    Button(
 //        modifier = Modifier

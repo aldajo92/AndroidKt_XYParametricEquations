@@ -21,6 +21,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,8 +42,11 @@ import com.aldajo92.xyparametricequations.domain.Point
 import com.aldajo92.xyparametricequations.domain.SettingsEquation
 import com.aldajo92.xyparametricequations.domain.SettingsType
 import com.aldajo92.xyparametricequations.ui.AnimatedCircleComponent
+import com.aldajo92.xyparametricequations.ui.InputNumberField
+import com.aldajo92.xyparametricequations.ui.InputStringField
 import com.aldajo92.xyparametricequations.ui.SettingsComponentSlider
 import com.aldajo92.xyparametricequations.ui.SimpleContinuousSlider
+import com.aldajo92.xyparametricequations.ui.XYAxisBoard
 import com.aldajo92.xyparametricequations.ui.showAsBottomSheet
 import com.aldajo92.xyparametricequations.ui.theme.XYParametricEquationsTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -370,10 +374,22 @@ fun RenderXYBoardUI(
             step = step,
             circleColor = Color.Red,
             lineColor = MaterialTheme.colors.onBackground,
-            textColor = MaterialTheme.colors.onBackground,
             tParameter = tParameter,
             circleSize = circleSize,
             parametricEquation = parametricEquation
+        )
+        Text(
+            modifier = Modifier.padding(10.dp),
+            text = "t: ${String.format("%.2f", tParameter)}",
+            color = MaterialTheme.colors.onBackground
+        )
+        Icon(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(10.dp),
+            imageVector = Icons.Default.PlayArrow,
+            tint = Color.Green,
+            contentDescription = "Back"
         )
     }
 }

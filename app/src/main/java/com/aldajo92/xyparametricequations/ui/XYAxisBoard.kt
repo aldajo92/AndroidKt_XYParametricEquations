@@ -1,4 +1,4 @@
-package com.aldajo92.xyparametricequations
+package com.aldajo92.xyparametricequations.ui
 
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
