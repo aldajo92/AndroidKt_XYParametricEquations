@@ -2,12 +2,15 @@ package com.aldajo92.xyparametricequations
 
 import androidx.lifecycle.ViewModel
 import com.aldajo92.xyparametricequations.equationParser.ExpressionParser
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-
-class MainViewModel(
-    private val expressionParser: ExpressionParser = ExpressionParser()
+import javax.inject.Inject
+@HiltViewModel
+class MainViewModel @Inject constructor(
 ) : ViewModel() {
+
+    private val expressionParser: ExpressionParser = ExpressionParser()
 
     private val _tParameter = MutableStateFlow(0f)
     val tParameterStateFlow get() : StateFlow<Float> = _tParameter
