@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aldajo92.xyparametricequations.domain.Point
+import com.aldajo92.xyparametricequations.domain.SettingsType
 import com.aldajo92.xyparametricequations.ui.AnimatedCircleComponent
 import com.aldajo92.xyparametricequations.ui.SimpleContinuousSlider
 import com.aldajo92.xyparametricequations.ui.showAsBottomSheet
@@ -56,6 +58,7 @@ import kotlin.math.min
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
+    private val settingsViewModel: SettingsViewModel by viewModels()
 
     @OptIn(ExperimentalLifecycleComposeApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +69,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
+
+                    val settingsUIState by settingsViewModel.settingsEquationUIStateFlow.collectAsStateWithLifecycle()
                     var resolution by remember { mutableStateOf(50f) }
 
                     val tParameter by viewModel.tParameterStateFlow.collectAsStateWithLifecycle()
@@ -101,9 +106,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                             SliderForTParameter(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                range = -100f..100f,
+                                modifier = Modifier.fillMaxWidth(),
+                                range = settingsUIState.getRangeForTParameter(),
                                 onSettingsClicked = {
                                     showSettingsBottomSheet(
                                         defaultResolution = resolution,
@@ -122,12 +126,17 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @OptIn(ExperimentalLifecycleComposeApi::class)
     private fun showSettingsBottomSheet(
         resolutionChange: (Float) -> Unit = {},
         defaultResolution: Float = 50f
     ) {
         this.showAsBottomSheet {
             var currentResolution by remember { mutableStateOf(defaultResolution) }
+
+            val tMinValueField by settingsViewModel.minField.collectAsStateWithLifecycle()
+            val tMaxValueField by settingsViewModel.maxField.collectAsStateWithLifecycle()
+
             XYParametricEquationsTheme {
                 Surface(
                     color = Color.Transparent
@@ -169,16 +178,32 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                InputVariableField(
+                                InputNumberField(
                                     modifier = Modifier
                                         .weight(1f),
-                                    textTitle = "Min:"
-                                )
-                                InputVariableField(
+                                    textTitle = "Min:",
+                                    textValue = tMinValueField.value,
+                                    showError = tMinValueField.showError,
+                                    errorMessage = tMinValueField.errorMessage
+                                ) {
+                                    settingsViewModel.updateSettings(it, SettingsType.MIN_T)
+                                }
+                                InputNumberField(
                                     modifier = Modifier
                                         .weight(1f),
-                                    textTitle = "Max:"
-                                )
+                                    textTitle = "Max:",
+                                    textValue = tMaxValueField.value,
+                                    showError = tMaxValueField.showError,
+                                    errorMessage = tMaxValueField.errorMessage
+                                ) {
+                                    settingsViewModel.updateSettings(it, SettingsType.MAX_T)
+                                }
+                                Button(
+                                    modifier = Modifier.align(Alignment.Bottom),
+                                    onClick = { /*TODO*/ })
+                                {
+                                    Text(text = "Save")
+                                }
                             }
                         }
                     }
@@ -200,7 +225,7 @@ fun InputEquationsRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        InputVariableField(
+        InputStringField(
             modifier = Modifier
                 .weight(1f),
             textTitle = "X(t)=",
@@ -209,7 +234,7 @@ fun InputEquationsRow(
             showError = equationXUIState.showError,
             errorMessage = equationXUIState.errorMessage
         )
-        InputVariableField(
+        InputStringField(
             modifier = Modifier
                 .weight(1f),
             textTitle = "Y(t)=",
