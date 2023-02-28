@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,14 +28,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aldajo92.xyparametricequations.domain.Point
+import com.aldajo92.xyparametricequations.domain.SettingsEquation
 import com.aldajo92.xyparametricequations.domain.SettingsType
 import com.aldajo92.xyparametricequations.ui.AnimatedCircleComponent
 import com.aldajo92.xyparametricequations.ui.SimpleContinuousSlider
@@ -69,8 +73,6 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-
-                    val settingsUIState by settingsViewModel.settingsEquationUIStateFlow.collectAsStateWithLifecycle()
                     var resolution by remember { mutableStateOf(50f) }
 
                     val tParameter by viewModel.tParameterStateFlow.collectAsStateWithLifecycle()
@@ -82,6 +84,11 @@ class MainActivity : ComponentActivity() {
                         EquationUIState()
                     )
 
+                    val settings by viewModel.settingsEquationFlow.collectAsStateWithLifecycle(
+                        initialValue = SettingsEquation(),
+                        lifecycle = lifecycle
+                    )
+
                     Column(modifier = Modifier.fillMaxSize()) {
                         RenderXYBoardUI(
                             modifier = Modifier.weight(1f),
@@ -91,7 +98,11 @@ class MainActivity : ComponentActivity() {
                                 viewModel.evaluateInEquation(it)
                             }
                         )
-                        Column(Modifier.fillMaxWidth()) {
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colors.background)
+                        ) {
                             InputEquationsRow(
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp)
@@ -107,7 +118,7 @@ class MainActivity : ComponentActivity() {
                             )
                             SliderForTParameter(
                                 modifier = Modifier.fillMaxWidth(),
-                                range = settingsUIState.getRangeForTParameter(),
+                                range = settings.getRangeForTParameter(),
                                 onSettingsClicked = {
                                     showSettingsBottomSheet(
                                         defaultResolution = resolution,
@@ -126,16 +137,20 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLifecycleComposeApi::class)
+    @OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalComposeUiApi::class)
     private fun showSettingsBottomSheet(
         resolutionChange: (Float) -> Unit = {},
         defaultResolution: Float = 50f
     ) {
-        this.showAsBottomSheet {
+        this.showAsBottomSheet { dismissDialog ->
             var currentResolution by remember { mutableStateOf(defaultResolution) }
 
             val tMinValueField by settingsViewModel.minField.collectAsStateWithLifecycle()
             val tMaxValueField by settingsViewModel.maxField.collectAsStateWithLifecycle()
+
+            val enableButtonState by settingsViewModel.enableButtonStateFlow.collectAsStateWithLifecycle(
+                false
+            )
 
             XYParametricEquationsTheme {
                 Surface(
@@ -178,13 +193,15 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
+                                val keyboardController = LocalSoftwareKeyboardController.current
                                 InputNumberField(
                                     modifier = Modifier
                                         .weight(1f),
                                     textTitle = "Min:",
                                     textValue = tMinValueField.value,
                                     showError = tMinValueField.showError,
-                                    errorMessage = tMinValueField.errorMessage
+                                    errorMessage = tMinValueField.errorMessage,
+                                    keyboardController = keyboardController
                                 ) {
                                     settingsViewModel.updateSettings(it, SettingsType.MIN_T)
                                 }
@@ -194,13 +211,19 @@ class MainActivity : ComponentActivity() {
                                     textTitle = "Max:",
                                     textValue = tMaxValueField.value,
                                     showError = tMaxValueField.showError,
-                                    errorMessage = tMaxValueField.errorMessage
+                                    errorMessage = tMaxValueField.errorMessage,
+                                    keyboardController = keyboardController
                                 ) {
                                     settingsViewModel.updateSettings(it, SettingsType.MAX_T)
                                 }
                                 Button(
                                     modifier = Modifier.align(Alignment.Bottom),
-                                    onClick = { /*TODO*/ })
+                                    enabled = enableButtonState,
+                                    onClick = {
+                                        settingsViewModel.saveData()
+                                        dismissDialog()
+                                        keyboardController?.hide()
+                                    })
                                 {
                                     Text(text = "Save")
                                 }

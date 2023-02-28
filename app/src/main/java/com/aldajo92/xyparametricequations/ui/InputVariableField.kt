@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -56,10 +57,10 @@ fun InputNumberField(
     textValue: String = "",
     showError: Boolean = false,
     errorMessage: String = "Error",
+    keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
     onDone: (String) -> Unit = {},
     onValueChange: (String) -> Unit = {}
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
     OutlinedTextField(
         modifier = modifier
             .defaultMinSize(minHeight = 10.dp)
