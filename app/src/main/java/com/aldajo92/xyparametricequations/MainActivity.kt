@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aldajo92.xyparametricequations.ui.theme.XYParametricEquationsTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -62,9 +63,10 @@ import kotlin.math.roundToInt
 * Add animation for parameter.
 *  */
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val viewModel by viewModels<MainViewModel>()
+    private val viewModel: MainViewModel by viewModels()
 
     @OptIn(ExperimentalLifecycleComposeApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
