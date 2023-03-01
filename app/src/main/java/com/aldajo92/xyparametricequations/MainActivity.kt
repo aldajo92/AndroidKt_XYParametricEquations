@@ -20,8 +20,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,7 +48,8 @@ import dagger.hilt.android.AndroidEntryPoint
 * Add input text for equations. (Done)
 * Add slider for parameter. (Done)
 * Add configuration section. (Done)
-* Add animation for t parameter.
+* Add animation for t parameter. (Done).
+* Add time duration for animation.
 * Enable, disable vector for point.
 *  */
 
@@ -82,8 +81,8 @@ class MainActivity : ComponentActivity() {
                     val tParameterEnd = settings.tMax
 
 
-                    // TODO: Pending to move it as a separate feature /////////////////////////////
-                    var isRunning by remember { mutableStateOf(false) }
+                    // Animation ////////////////////////////////////////////////////////////////////////////
+                    val isRunning by viewModel.isRunningStateFlow.collectAsStateWithLifecycle()
 
                     val tAnimation = remember { Animatable(tParameterStart, Float.VectorConverter) }
                     val animationSpec = remember {
@@ -102,8 +101,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
-
-                    // TODO: END
+                    // End Animation //////////////////////////////////////////////////////////////////////
 
 
                     Column(modifier = Modifier.fillMaxSize()) {
@@ -120,7 +118,7 @@ class MainActivity : ComponentActivity() {
                                     tParameter,
                                     isRunning = isRunning,
                                 ) {
-                                    isRunning = !isRunning
+                                    viewModel.setIsRunning(!isRunning)
                                 }
                             }
                         )
@@ -147,12 +145,22 @@ class MainActivity : ComponentActivity() {
                             tRange = settings.getRangeForTParameter(),
                             tParameter = tParameter,
                             viewModel = viewModel,
-                            enableSlider = !isRunning
+                            enableInput = !isRunning
                         )
                     }
                 }
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.setIsRunning(false)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.setIsRunning(false)
     }
 
     @OptIn(ExperimentalLifecycleComposeApi::class)
@@ -163,7 +171,7 @@ class MainActivity : ComponentActivity() {
         sliderChange: (Float) -> Unit = {},
         tRange: ClosedFloatingPointRange<Float>,
         tParameter: Float = 0f,
-        enableSlider: Boolean = true,
+        enableInput: Boolean = true,
         viewModel: MainViewModel
     ) {
         val equationXUIState by viewModel.equationXUIStateFlow.collectAsStateWithLifecycle(
@@ -184,6 +192,7 @@ class MainActivity : ComponentActivity() {
                     .fillMaxWidth(),
                 equationXUIState = equationXUIState,
                 equationYUIState = equationYUIState,
+                enableInputText = enableInput,
                 onEquationExpressionXChange = {
                     viewModel.setEquationStringX(it)
                 },
@@ -194,11 +203,11 @@ class MainActivity : ComponentActivity() {
             SliderForTParameter(
                 modifier = Modifier.fillMaxWidth(),
                 range = tRange,
-//                startValue: Float = (range.start + range.endInclusive) / 2f,
+                // startValue: Float = (range.start + range.endInclusive) / 2f,
                 tParameter = tParameter,
                 onSettingsClicked = onSettingsClicked,
                 onValueChanged = sliderChange,
-                enableSlider = enableSlider
+                enableSlider = enableInput
             )
         }
     }

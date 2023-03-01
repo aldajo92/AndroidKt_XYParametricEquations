@@ -7,13 +7,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
-//@Preview
+@Preview
 @Composable
 fun SettingsComponentSlider(
     modifier: Modifier = Modifier,
     textTitle: String = "No title",
     startValue: Float = 0f,
-    selection: Float,
+    selection: Float = 0f,
     range: ClosedFloatingPointRange<Float> = 12f..100f,
     onValueChange: (Float) -> Unit = {}
 ) {

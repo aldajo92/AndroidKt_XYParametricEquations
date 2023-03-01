@@ -17,12 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.tooling.preview.Preview
 import com.aldajo92.xyparametricequations.domain.Point
 import kotlin.math.abs
 import kotlin.math.min
 
-@Preview
 @Composable
 fun XYMainUI(
     modifier: Modifier = Modifier,

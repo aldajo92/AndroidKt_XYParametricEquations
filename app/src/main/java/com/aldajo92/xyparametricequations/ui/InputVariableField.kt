@@ -17,13 +17,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun InputStringField(
     modifier: Modifier = Modifier,
     textTitle: String = "X",
     textValue: String = "",
+    enableInputText : Boolean = true,
     showError: Boolean = false,
     errorMessage: String = "Error",
     onValueChange: (String) -> Unit = {}
@@ -43,6 +43,7 @@ fun InputStringField(
         },
         onValueChange = onValueChange,
         isError = showError,
+        enabled = enableInputText,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(
             onDone = { keyboardController?.hide() })

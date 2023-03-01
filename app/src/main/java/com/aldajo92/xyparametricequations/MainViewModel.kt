@@ -22,6 +22,9 @@ class MainViewModel @Inject constructor(
     private val _tParameter = MutableStateFlow(0f)
     val tParameterStateFlow get() : StateFlow<Float> = _tParameter
 
+    private val _isRunning = MutableStateFlow(false)
+    val isRunningStateFlow get() : StateFlow<Boolean> = _isRunning
+
     val settingsEquationFlow = settingsRepository.getSettingsChangedFlow()
         .map {
             val currentTParameter = _tParameter.value
@@ -103,6 +106,10 @@ class MainViewModel @Inject constructor(
 
     fun setTParameter(t: Float) {
         _tParameter.value = t
+    }
+
+    fun setIsRunning(isRunning: Boolean) {
+        _isRunning.value = isRunning
     }
 
 }
