@@ -33,7 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.aldajo92.xyparametricequations.domain.SettingsEquation
+import com.aldajo92.xyparametricequations.domain.SettingsAnimation
 import com.aldajo92.xyparametricequations.ui.InputEquationsRow
 import com.aldajo92.xyparametricequations.ui.SliderForTParameter
 import com.aldajo92.xyparametricequations.ui.XYMainUI
@@ -74,11 +74,12 @@ class MainActivity : ComponentActivity() {
                     val tParameter by viewModel.tParameterStateFlow.collectAsStateWithLifecycle()
 
                     val settings by viewModel.settingsEquationFlow.collectAsStateWithLifecycle(
-                        SettingsEquation()
+                        SettingsAnimation()
                     )
 
                     val tParameterStart = settings.tMin
                     val tParameterEnd = settings.tMax
+                    val timeDurationMillis = settings.timeDurationMillis
 
 
                     // Animation ////////////////////////////////////////////////////////////////////////////
@@ -87,7 +88,7 @@ class MainActivity : ComponentActivity() {
                     val tAnimation = remember { Animatable(tParameterStart, Float.VectorConverter) }
                     val animationSpec = remember {
                         InfiniteRepeatableSpec<Float>(
-                            tween(durationMillis = 5000, easing = LinearEasing)
+                            tween(durationMillis = timeDurationMillis, easing = LinearEasing)
                         )
                     }
                     LaunchedEffect(isRunning) {

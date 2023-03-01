@@ -46,6 +46,7 @@ fun Activity.showSettingsBottomSheet(
 
         val tMinValueField by settingsViewModel.minField.collectAsStateWithLifecycle()
         val tMaxValueField by settingsViewModel.maxField.collectAsStateWithLifecycle()
+        val timeDurationValueField by settingsViewModel.timeField.collectAsStateWithLifecycle()
 
         val enableButtonState by settingsViewModel.enableButtonStateFlow.collectAsStateWithLifecycle(
             false
@@ -103,7 +104,7 @@ fun Activity.showSettingsBottomSheet(
                             currentResolution = it
                         }
                         Text(
-                            text = "Parameter t:",
+                            text = "Parameters",
                             modifier = Modifier
                         )
                         Row(
@@ -114,7 +115,7 @@ fun Activity.showSettingsBottomSheet(
                             InputNumberField(
                                 modifier = Modifier
                                     .weight(1f),
-                                textTitle = "Min:",
+                                textTitle = "tMin:",
                                 textValue = tMinValueField.value,
                                 showError = tMinValueField.showError,
                                 errorMessage = tMinValueField.errorMessage,
@@ -125,13 +126,23 @@ fun Activity.showSettingsBottomSheet(
                             InputNumberField(
                                 modifier = Modifier
                                     .weight(1f),
-                                textTitle = "Max:",
+                                textTitle = "tMax:",
                                 textValue = tMaxValueField.value,
                                 showError = tMaxValueField.showError,
                                 errorMessage = tMaxValueField.errorMessage,
                                 keyboardController = keyboardController
                             ) {
                                 settingsViewModel.updateSettings(it, SettingsType.MAX_T)
+                            }
+                            InputNumberField(
+                                modifier = Modifier.weight(1f),
+                                textTitle = "Time:",
+                                textValue = timeDurationValueField.value,
+                                showError = timeDurationValueField.showError,
+                                errorMessage = timeDurationValueField.errorMessage,
+                                keyboardController = keyboardController
+                            ) {
+                                settingsViewModel.updateSettings(it, SettingsType.TIME_DURATION)
                             }
                             Button(
                                 modifier = Modifier.align(Alignment.Bottom),
