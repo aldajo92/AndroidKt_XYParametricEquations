@@ -2,7 +2,7 @@ package com.aldajo92.xyparametricequations._di
 
 import android.content.Context
 import com.aldajo92.xyparametricequations.datasource.DataSourceFlow
-import com.aldajo92.xyparametricequations.domain.SettingsEquation
+import com.aldajo92.xyparametricequations.domain.SettingsAnimation
 import com.aldajo92.xyparametricequations.framework.storage.SettingsDataSource
 import dagger.Module
 import dagger.Provides
@@ -19,6 +19,6 @@ object DatasourceModule {
     @Singleton
     fun provideSettingsDatasource(
         @ApplicationContext appContext: Context
-    ): DataSourceFlow<SettingsEquation> = SettingsDataSource(appContext)
+    ): DataSourceFlow<SettingsAnimation> = SettingsDataSource(appContext)
 
 }

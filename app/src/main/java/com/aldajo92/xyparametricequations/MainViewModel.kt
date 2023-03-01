@@ -2,7 +2,7 @@ package com.aldajo92.xyparametricequations
 
 import androidx.lifecycle.ViewModel
 import com.aldajo92.xyparametricequations.domain.Point
-import com.aldajo92.xyparametricequations.domain.SettingsEquation
+import com.aldajo92.xyparametricequations.domain.SettingsAnimation
 import com.aldajo92.xyparametricequations.domain.SettingsType
 import com.aldajo92.xyparametricequations.equationParser.ExpressionParser
 import com.aldajo92.xyparametricequations.repositories.DataRepository
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val settingsRepository: DataRepository<SettingsType, SettingsEquation>
+    private val settingsRepository: DataRepository<SettingsType, SettingsAnimation>
 ) : ViewModel() {
 
     private val expressionParser: ExpressionParser = ExpressionParser()

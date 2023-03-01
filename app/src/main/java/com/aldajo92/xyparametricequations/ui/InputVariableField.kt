@@ -83,7 +83,7 @@ fun InputNumberField(
     val coroutineScope = rememberCoroutineScope()
     OutlinedTextField(
         modifier = modifier
-            .defaultMinSize(minHeight = 10.dp)
+            .defaultMinSize(minHeight = 12.dp)
             .fillMaxWidth()
             .bringIntoViewRequester(bringIntoViewRequester)
             .onFocusEvent { focusState ->
@@ -93,7 +93,7 @@ fun InputNumberField(
                     }
                 }
             },
-        textStyle = TextStyle(fontSize = 10.sp),
+        textStyle = TextStyle(fontSize = 12.sp),
         value = textValue,
         label = {
             Text(

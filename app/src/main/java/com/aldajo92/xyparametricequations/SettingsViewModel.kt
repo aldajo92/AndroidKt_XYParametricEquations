@@ -2,7 +2,7 @@ package com.aldajo92.xyparametricequations
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aldajo92.xyparametricequations.domain.SettingsEquation
+import com.aldajo92.xyparametricequations.domain.SettingsAnimation
 import com.aldajo92.xyparametricequations.domain.SettingsType
 import com.aldajo92.xyparametricequations.repositories.DataRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val settingsRepository: DataRepository<SettingsType, SettingsEquation>
+    private val settingsRepository: DataRepository<SettingsType, SettingsAnimation>
 ) : ViewModel() {
 
     private val settingsEquationUIStateFlow = settingsRepository.getSettingsChangedFlow()
@@ -25,11 +25,15 @@ class SettingsViewModel @Inject constructor(
     private val _maxField = MutableStateFlow(SettingsUIField("100"))
     val maxField: StateFlow<SettingsUIField> = _maxField
 
+    private val _timeField = MutableStateFlow(SettingsUIField("5000"))
+    val timeField: StateFlow<SettingsUIField> = _timeField
+
     init {
         viewModelScope.launch {
             settingsEquationUIStateFlow.collect {
                 _minField.value = SettingsUIField(it.tMin.toString())
                 _maxField.value = SettingsUIField(it.tMax.toString())
+                _timeField.value = SettingsUIField(it.timeDurationMillis.toString())
             }
         }
     }
@@ -37,13 +41,14 @@ class SettingsViewModel @Inject constructor(
     val enableButtonStateFlow = combine(
         settingsEquationUIStateFlow,
         _minField,
-        _maxField
-    ) { settingsEquation, minField, maxField ->
+        _maxField,
+        _timeField
+    ) { settingsEquation, minField, maxField, timeField ->
         val containsErrors = minField.showError || maxField.showError
         val tMinEquals = settingsEquation.tMin == minField.value.toFloatOrNull()
         val tMaxEquals = settingsEquation.tMax == maxField.value.toFloatOrNull()
-        val result = !containsErrors && (!tMinEquals || !tMaxEquals)
-        result
+        val timeFieldEquals = settingsEquation.timeDurationMillis == timeField.value.toIntOrNull()
+        !containsErrors && (!tMinEquals || !tMaxEquals || !timeFieldEquals)
     }
 
     fun updateSettings(it: String, settingsType: SettingsType) {
@@ -68,6 +73,15 @@ class SettingsViewModel @Inject constructor(
                     errorMessage = if (showError) "Invalid number" else ""
                 )
             }
+            SettingsType.TIME_DURATION -> {
+                val time = it.toIntOrNull()
+                val showError = time == null || time < 100
+                _timeField.value = SettingsUIField(
+                    value = it,
+                    showError = showError,
+                    errorMessage = if (showError) "Invalid time" else ""
+                )
+            }
             else -> Unit
         }
     }
@@ -75,12 +89,13 @@ class SettingsViewModel @Inject constructor(
     fun saveData() {
         val min = _minField.value.value.toFloatOrNull() ?: Float.MIN_VALUE
         val max = _maxField.value.value.toFloatOrNull() ?: Float.MAX_VALUE
-        val settingsEquation = SettingsEquation(
+        val settingsAnimation = SettingsAnimation(
             tMin = min,
-            tMax = max
+            tMax = max,
+            timeDurationMillis = 5000
         )
         viewModelScope.launch {
-            settingsRepository.saveData(SettingsType.ALL_SETTINGS, settingsEquation)
+            settingsRepository.saveData(SettingsType.ALL_SETTINGS, settingsAnimation)
         }
     }
 }
@@ -91,4 +106,4 @@ data class SettingsUIField(
     var errorMessage: String = ""
 )
 
-fun SettingsEquation.getRangeForTParameter() = tMin..tMax
+fun SettingsAnimation.getRangeForTParameter() = tMin..tMax

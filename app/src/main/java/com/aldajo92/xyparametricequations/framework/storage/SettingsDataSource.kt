@@ -7,32 +7,32 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.aldajo92.xyparametricequations.datasource.DataSourceFlow
-import com.aldajo92.xyparametricequations.domain.SettingsEquation
+import com.aldajo92.xyparametricequations.domain.SettingsAnimation
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class SettingsDataSource(private val context: Context) : DataSourceFlow<SettingsEquation> {
+class SettingsDataSource(private val context: Context) : DataSourceFlow<SettingsAnimation> {
 
     private val jsonAdapter = Moshi
         .Builder()
         .add(KotlinJsonAdapterFactory())
         .build()
-        .adapter(SettingsEquation::class.java)
+        .adapter(SettingsAnimation::class.java)
 
-    private val settingDataFlow: Flow<SettingsEquation> =
+    private val settingDataFlow: Flow<SettingsAnimation> =
         context.dataStore.data.map { preferences ->
-            preferences[SETTINGS_KEY]?.let { jsonAdapter.fromJson(it) } ?: SettingsEquation()
+            preferences[SETTINGS_KEY]?.let { jsonAdapter.fromJson(it) } ?: SettingsAnimation()
         }
 
-    override suspend fun saveData(data: SettingsEquation) {
+    override suspend fun saveData(data: SettingsAnimation) {
         context.dataStore.edit { preferences ->
             preferences[SETTINGS_KEY] = jsonAdapter.toJson(data)
         }
     }
 
-    override fun getDataFlow(): Flow<SettingsEquation> = settingDataFlow
+    override fun getDataFlow(): Flow<SettingsAnimation> = settingDataFlow
 
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")

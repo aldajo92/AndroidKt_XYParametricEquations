@@ -3,7 +3,7 @@ package com.aldajo92.xyparametricequations._di
 import com.aldajo92.xyparametricequations.repositories.DataRepository
 import com.aldajo92.xyparametricequations.repositories.DataRepositoryImpl
 import com.aldajo92.xyparametricequations.datasource.DataSourceFlow
-import com.aldajo92.xyparametricequations.domain.SettingsEquation
+import com.aldajo92.xyparametricequations.domain.SettingsAnimation
 import com.aldajo92.xyparametricequations.domain.SettingsType
 import dagger.Module
 import dagger.Provides
@@ -18,7 +18,7 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun providesSettingsDataRepository(
-        settingsDatasource : DataSourceFlow<SettingsEquation>
-    ): DataRepository<SettingsType, SettingsEquation> = DataRepositoryImpl(settingsDatasource)
+        settingsDatasource : DataSourceFlow<SettingsAnimation>
+    ): DataRepository<SettingsType, SettingsAnimation> = DataRepositoryImpl(settingsDatasource)
 
 }
