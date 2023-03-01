@@ -12,11 +12,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.aldajo92.xyparametricequations.EquationUIState
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun InputEquationsRow(
     modifier: Modifier = Modifier,
@@ -26,6 +29,7 @@ fun InputEquationsRow(
     onEquationExpressionXChange: (String) -> Unit = {},
     onEquationExpressionYChange: (String) -> Unit = {},
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -38,7 +42,8 @@ fun InputEquationsRow(
             enableInputText = enableInputText,
             onValueChange = onEquationExpressionXChange,
             showError = equationXUIState.showError,
-            errorMessage = equationXUIState.errorMessage
+            errorMessage = equationXUIState.errorMessage,
+            keyboardController = keyboardController
         )
         InputStringField(
             modifier = Modifier
@@ -48,7 +53,8 @@ fun InputEquationsRow(
             enableInputText = enableInputText,
             onValueChange = onEquationExpressionYChange,
             showError = equationYUIState.showError,
-            errorMessage = equationYUIState.errorMessage
+            errorMessage = equationYUIState.errorMessage,
+            keyboardController = keyboardController
         )
     }
 }
