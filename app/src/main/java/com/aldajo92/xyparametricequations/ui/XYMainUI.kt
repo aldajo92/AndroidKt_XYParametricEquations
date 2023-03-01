@@ -1,14 +1,75 @@
-package com.aldajo92.xyparametricequations
+package com.aldajo92.xyparametricequations.ui
 
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.layout
+import com.aldajo92.xyparametricequations.domain.Point
 import kotlin.math.abs
+import kotlin.math.min
+
+@Composable
+fun XYMainUI(
+    modifier: Modifier = Modifier,
+    topContent: (@Composable BoxScope.() -> Unit)? = null,
+    resolution: Float = 50f,
+    tParameter: Float = 0f,
+    circleSize: Float = 40f,
+    parametricEquation: (Float) -> Point = { Point(it, it) }
+) {
+    var width by remember { mutableStateOf(0f) }
+    var height by remember { mutableStateOf(0f) }
+    var step by remember { mutableStateOf(0f) }
+
+    Box(
+        modifier
+            .layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    width = placeable.width.toFloat()
+                    height = placeable.height.toFloat()
+                    step = min(width, height) / resolution
+                    placeable.placeRelative(0, 0)
+                }
+            }
+    ) {
+        val screenBottomRightCorner = Offset(width, height)
+        val newOriginOffset = screenBottomRightCorner / 2f
+        XYAxisBoard(
+            modifier = Modifier.fillMaxSize(),
+            pointOrigin = newOriginOffset,
+            width = width,
+            height = height,
+            step = step,
+            colorAxisX = MaterialTheme.colors.onBackground,
+            colorAxisY = MaterialTheme.colors.onBackground
+        )
+        XYCircleComponent(
+            modifier = Modifier.fillMaxSize(),
+            pointOrigin = newOriginOffset,
+            step = step,
+            circleColor = Color.Red,
+            lineColor = MaterialTheme.colors.onBackground,
+            tParameter = tParameter,
+            circleSize = circleSize,
+            parametricEquation = parametricEquation
+        )
+        topContent?.let { it() }
+    }
+}
 
 @Composable
 fun XYAxisBoard(
@@ -126,3 +187,4 @@ fun XYAxisBoard(
         }
     }
 }
+

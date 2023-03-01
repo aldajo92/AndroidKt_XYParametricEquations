@@ -13,6 +13,7 @@ fun SettingsComponentSlider(
     modifier: Modifier = Modifier,
     textTitle: String = "No title",
     startValue: Float = 0f,
+    selection: Float = 0f,
     range: ClosedFloatingPointRange<Float> = 12f..100f,
     onValueChange: (Float) -> Unit = {}
 ) {
@@ -26,7 +27,8 @@ fun SettingsComponentSlider(
         SimpleContinuousSlider(
             modifier = Modifier.fillMaxWidth(),
             range = range,
-            startValue = startValue
+            startValue = startValue,
+            selection = selection
         ) {
             onValueChange(it)
         }

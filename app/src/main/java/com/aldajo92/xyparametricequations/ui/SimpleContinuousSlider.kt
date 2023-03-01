@@ -16,16 +16,16 @@ fun SimpleContinuousSlider(
     modifier: Modifier = Modifier,
     range: ClosedFloatingPointRange<Float> = 0f..100f,
     startValue: Float = (range.start + range.endInclusive) / 2f,
+    selection: Float = startValue,
+    enableSlider: Boolean = true,
     onValueChanged: (Float) -> Unit = {}
 ) {
-    var selection by remember { mutableStateOf(startValue) }
-
     Slider(
         modifier = modifier,
         value = selection,
         valueRange = range,
+        enabled = enableSlider,
         onValueChange = {
-            selection = it
             onValueChanged(it)
         },
         colors = SliderDefaults.colors(
