@@ -1,18 +1,14 @@
 package com.aldajo92.xyparametricequations
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aldajo92.xyparametricequations.repositories.DataRepository
 import com.aldajo92.xyparametricequations.domain.SettingsEquation
 import com.aldajo92.xyparametricequations.domain.SettingsType
+import com.aldajo92.xyparametricequations.repositories.DataRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

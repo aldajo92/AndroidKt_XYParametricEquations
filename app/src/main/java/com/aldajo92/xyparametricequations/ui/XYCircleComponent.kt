@@ -15,7 +15,7 @@ import com.aldajo92.xyparametricequations.domain.toOffset
 import com.aldajo92.xyparametricequations.domain.translate
 
 @Composable
-fun AnimatedCircleComponent(
+fun XYCircleComponent(
     modifier: Modifier = Modifier,
     circleColor: Color = Color.Blue,
     lineColor: Color = Color.Blue,
@@ -25,31 +25,6 @@ fun AnimatedCircleComponent(
     tParameter: Float = 0f,
     parametricEquation: (Float) -> Point = { Point(it, it) }
 ) {
-
-//    TODO: Pending to move it as a separate feature
-//    val tParameterStart = 0f
-//    val tParameterEnd = 5f
-
-//    var isRunning by remember { mutableStateOf(false) }
-
-//    var tParameter by remember { mutableStateOf(tParameterStart) }
-//    val tAnimation2 = remember { Animatable(tParameter, Float.VectorConverter) }
-//    val animationSpec = remember {
-//        InfiniteRepeatableSpec<Float>(
-//            tween(durationMillis = 5000, easing = LinearEasing)
-//        )
-//    }
-//    LaunchedEffect(isRunning) {
-//        if (isRunning) {
-//            tAnimation2.snapTo(tParameterStart)
-//            tAnimation2.animateTo(
-//                targetValue = tParameterEnd,
-//                animationSpec = animationSpec
-//            ) {
-//                tParameter = this.value
-//            }
-//        }
-//    }
 
     val pathEffect = remember {
         PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
