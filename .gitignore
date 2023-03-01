@@ -14,5 +14,5 @@
 .cxx
 local.properties
 
-/app/debug/*.aab
-/app/release/*.aab
+/app/debug/*
+/app/release/*
