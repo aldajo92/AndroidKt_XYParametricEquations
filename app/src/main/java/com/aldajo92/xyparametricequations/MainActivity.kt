@@ -49,7 +49,8 @@ import dagger.hilt.android.AndroidEntryPoint
 * Add slider for parameter. (Done)
 * Add configuration section. (Done)
 * Add animation for t parameter. (Done).
-* Add time duration for animation.
+* Add time duration for animation. (Done)
+* Show path when t parameter increases.
 * Enable, disable vector for point.
 *  */
 
