@@ -47,7 +47,7 @@ fun XYMainUI(
             }
     ) {
         val screenBottomRightCorner = Offset(width, height)
-        val newOriginOffset = screenBottomRightCorner / 2f
+        val newOriginOffset = Offset(50f, screenBottomRightCorner.y -50f)
         XYAxisBoard(
             modifier = Modifier.fillMaxSize(),
             pointOrigin = newOriginOffset,
@@ -81,7 +81,6 @@ fun XYAxisBoard(
     colorAxisX: Color = Color.Blue,
     colorAxisY: Color = Color.Blue
 ) {
-
     if (step < 0f) throw Exception("Value for step must be positive. Current value is $step")
 
     val divisionLength = 10f
@@ -101,31 +100,31 @@ fun XYAxisBoard(
     Canvas(modifier = modifier) {
         drawLine(
             color = colorAxisX,
-            start = Offset(0f, height / 2),
-            end = Offset(width, height / 2)
+            start = Offset(0f, pointOrigin.y),
+            end = Offset(width, pointOrigin.y)
         )
         drawLine(
             color = colorAxisY,
-            start = Offset(width / 2, 0f),
-            end = Offset(width / 2, height)
+            start = Offset(pointOrigin.x, 0f),
+            end = Offset(pointOrigin.x, height)
         )
 
         var divisionPosition: Float
 
         divisionPosition = 0f
         var j = 0
-        while (abs(divisionPosition) < (width / 2)) {
+        while (abs(divisionPosition) < (width - pointOrigin.x)) {
             divisionPosition = j * step
             drawLine(
                 color = colorAxisX,
-                start = Offset(pointOrigin.x - divisionPosition, (height / 2) - divisionLength),
-                end = Offset(pointOrigin.x - divisionPosition, (height / 2) + divisionLength),
+                start = Offset(pointOrigin.x - divisionPosition, pointOrigin.y - divisionLength),
+                end = Offset(pointOrigin.x - divisionPosition, pointOrigin.y + divisionLength),
                 strokeWidth = 2f
             )
             drawLine(
                 color = colorAxisX,
-                start = Offset(pointOrigin.x + divisionPosition, (height / 2) - divisionLength),
-                end = Offset(pointOrigin.x + divisionPosition, (height / 2) + divisionLength),
+                start = Offset(pointOrigin.x + divisionPosition, pointOrigin.y - divisionLength),
+                end = Offset(pointOrigin.x + divisionPosition, pointOrigin.y + divisionLength),
                 strokeWidth = 2f
             )
             if (j % 5 == 0 && j > 0) {
@@ -151,18 +150,16 @@ fun XYAxisBoard(
 
         divisionPosition = 0f
         var i = 0
-        while (abs(divisionPosition) < (height / 2f)) {
+        var yStepPositive : Float
+        while (
+            abs(divisionPosition) < abs(height)
+        ) {
             divisionPosition = i * step
+            yStepPositive = pointOrigin.y - divisionPosition
             drawLine(
                 color = colorAxisY,
-                start = Offset((width / 2) - divisionLength, pointOrigin.y - divisionPosition),
-                end = Offset((width / 2f) + divisionLength, pointOrigin.y - divisionPosition),
-                strokeWidth = 2f
-            )
-            drawLine(
-                color = colorAxisY,
-                start = Offset((width / 2) - divisionLength, pointOrigin.y + divisionPosition),
-                end = Offset((width / 2f) + divisionLength, pointOrigin.y + divisionPosition),
+                start = Offset(pointOrigin.x - divisionLength, yStepPositive),
+                end = Offset(pointOrigin.x + divisionLength, yStepPositive),
                 strokeWidth = 2f
             )
             if (i % 5 == 0 && i > 0) {
@@ -170,15 +167,34 @@ fun XYAxisBoard(
                     drawText(
                         i.toString(),
                         pointOrigin.x - divisionLength,
-                        pointOrigin.y - divisionPosition + 10f,
+                        yStepPositive + 10f,
                         textPaintY
                     )
                 }
+            }
+            i++
+        }
+
+        divisionPosition = 0f
+        i = 0
+        var yStepNegative : Float
+        while (
+            abs(divisionPosition) < abs(height)
+        ) {
+            divisionPosition = i * step
+            yStepNegative = pointOrigin.y + divisionPosition
+            drawLine(
+                color = colorAxisY,
+                start = Offset(pointOrigin.x - divisionLength, yStepNegative),
+                end = Offset(pointOrigin.x + divisionLength, yStepNegative),
+                strokeWidth = 2f
+            )
+            if (i % 5 == 0 && i > 0) {
                 drawContext.canvas.nativeCanvas.apply {
                     drawText(
                         (-i).toString(),
                         pointOrigin.x - divisionLength,
-                        pointOrigin.y + divisionPosition + 10f,
+                        yStepNegative + 10f,
                         textPaintY
                     )
                 }
@@ -187,4 +203,3 @@ fun XYAxisBoard(
         }
     }
 }
-
