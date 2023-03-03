@@ -233,6 +233,6 @@ fun BoxScope.TopContent(
             .clickable { playButtonClicked() },
         painter = painterResource(if (isRunning) R.drawable.ic_stop else R.drawable.ic_play_arrow),
         tint = Color.Green,
-        contentDescription = "Back"
+        contentDescription = (if (isRunning) "Stop" else "Play")
     )
 }

@@ -136,7 +136,7 @@ fun Activity.showSettingsBottomSheet(
                             }
                             InputNumberField(
                                 modifier = Modifier.weight(1f),
-                                textTitle = "Time:",
+                                textTitle = "Time (ms):",
                                 textValue = timeDurationValueField.value,
                                 showError = timeDurationValueField.showError,
                                 errorMessage = timeDurationValueField.errorMessage,
