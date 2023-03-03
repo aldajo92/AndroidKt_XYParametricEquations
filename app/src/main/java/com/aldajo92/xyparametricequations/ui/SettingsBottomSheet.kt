@@ -32,15 +32,10 @@ import com.aldajo92.xyparametricequations.ui.theme.XYParametricEquationsTheme
 @OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalComposeUiApi::class)
 fun Activity.showSettingsBottomSheet(
     settingsViewModel: SettingsViewModel,
-    resolutionChange: (Float) -> Unit = {},
     circleSizeChange: (Float) -> Unit = {},
-    defaultResolution: Float = 50f,
     defaultCircleSize: Float = 40f,
 ) {
     this.showAsBottomSheet { dismissDialog ->
-        // TODO: Consider using a ViewModel for this
-        var currentResolution by remember { mutableStateOf(defaultResolution) }
-
         // TODO: Consider using a ViewModel for this
         var currentCircleSize by remember { mutableStateOf(defaultCircleSize) }
 
@@ -88,21 +83,21 @@ fun Activity.showSettingsBottomSheet(
                             circleSizeChange(it)
                             currentCircleSize = it
                         }
-                        SettingsComponentSlider(
-                            modifier = Modifier.fillMaxWidth(),
-                            textTitle = "Resolution: ${
-                                String.format(
-                                    "%.2f",
-                                    currentResolution
-                                )
-                            }",
-                            startValue = defaultResolution,
-                            selection = currentResolution,
-                            range = 12f..100f
-                        ) {
-                            resolutionChange(it)
-                            currentResolution = it
-                        }
+//                        SettingsComponentSlider(
+//                            modifier = Modifier.fillMaxWidth(),
+//                            textTitle = "Resolution: ${
+//                                String.format(
+//                                    "%.2f",
+//                                    currentResolution
+//                                )
+//                            }",
+//                            startValue = defaultResolution,
+//                            selection = currentResolution,
+//                            range = 12f..100f
+//                        ) {
+//                            resolutionChange(it)
+//                            currentResolution = it
+//                        }
                         Text(
                             text = "Parameters",
                             modifier = Modifier

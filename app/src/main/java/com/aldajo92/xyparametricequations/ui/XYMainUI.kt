@@ -3,6 +3,8 @@ package com.aldajo92.xyparametricequations.ui
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,11 +37,15 @@ fun XYMainUI(
 ) {
     var width by remember { mutableStateOf(0f) }
     var height by remember { mutableStateOf(0f) }
-    var step by remember { mutableStateOf(0f) }
+    var stepNumbers by remember { mutableStateOf(0f) }
 
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
+    var scale by remember { mutableStateOf(1 / resolution) } // TODO: Remove this to remember
+    var offsetOrigin by remember { mutableStateOf(Offset.Zero) }
 
+    val state = rememberTransformableState { zoomChange, offsetChange, _ ->
+        scale *= zoomChange
+        offsetOrigin += offsetChange
+    }
 
     Box(
         modifier
@@ -48,36 +54,35 @@ fun XYMainUI(
                 layout(placeable.width, placeable.height) {
                     width = placeable.width.toFloat()
                     height = placeable.height.toFloat()
-                    step = min(width, height) / resolution
+                    stepNumbers = min(width, height) * scale
                     placeable.placeRelative(0, 0)
                 }
             }
             .pointerInput(Unit) {
                 if (isDragEnabled) detectDragGestures { change, dragAmount ->
                     change.consume()
-                    offsetX += dragAmount.x
-                    offsetY += dragAmount.y
+                    offsetOrigin += dragAmount
                 }
             }
+            .transformable(state = state)
     ) {
         val screenBottomRightCorner = Offset(width, height)
         // val newOriginOffset = Offset(50f, screenBottomRightCorner.y -50f) // TODO: Use this to include in configuration
-        val dragOffset = Offset(offsetX, offsetY)
-        val defaultOrigin = (screenBottomRightCorner / 2f) + dragOffset
+        val defaultOrigin = (screenBottomRightCorner / 2f) + offsetOrigin
 
         XYAxisBoard(
             modifier = Modifier.fillMaxSize(),
             pointOrigin = defaultOrigin,
             width = width,
             height = height,
-            step = step,
+            step = stepNumbers,
             colorAxisX = MaterialTheme.colors.onBackground,
             colorAxisY = MaterialTheme.colors.onBackground
         )
         XYCircleComponent(
             modifier = Modifier.fillMaxSize(),
             pointOrigin = defaultOrigin,
-            step = step,
+            step = stepNumbers,
             circleColor = Color.Red,
             lineColor = MaterialTheme.colors.onBackground,
             tParameter = tParameter,

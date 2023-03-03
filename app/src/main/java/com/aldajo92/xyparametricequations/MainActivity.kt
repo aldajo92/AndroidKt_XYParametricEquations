@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    var resolution by remember { mutableStateOf(50f) }
+                    val resolution by remember { mutableStateOf(50f) } // TODO: Remove this
                     var circleSize by remember { mutableStateOf(40f) }
 
                     val tParameter by viewModel.tParameterStateFlow.collectAsStateWithLifecycle()
@@ -113,7 +113,7 @@ class MainActivity : ComponentActivity() {
                             resolution = resolution,
                             circleSize = circleSize,
                             tParameter = tParameter,
-                            isDragEnabled = false,
+                            isDragEnabled = true,
                             parametricEquation = {
                                 viewModel.evaluateInEquation(it)
                             },
@@ -133,13 +133,9 @@ class MainActivity : ComponentActivity() {
                             onSettingsClicked = {
                                 showSettingsBottomSheet(
                                     settingsViewModel,
-                                    resolutionChange = {
-                                        resolution = it
-                                    },
                                     circleSizeChange = {
                                         circleSize = it
                                     },
-                                    defaultResolution = resolution,
                                     defaultCircleSize = circleSize
                                 )
                             },
@@ -241,7 +237,8 @@ fun BoxScope.TopContent(
             tint = Color.Green,
             contentDescription = (if (isRunning) "Stop" else "Play")
         )
+        // TODO Add icon to zoom enable here
+        // TODO Add icon to center origin here
     }
 
-    // TODO Add drag icon here
 }
