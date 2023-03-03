@@ -1,3 +1,6 @@
+## XY Parametric Equations App
+
+
 <a href='https://play.google.com/store/apps/details?id=com.aldajo92.androidanimationscompose'><img width="30%" alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/></a>
 
 ## References:
