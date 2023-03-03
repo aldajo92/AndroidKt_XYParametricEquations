@@ -19,10 +19,10 @@ class SettingsViewModel @Inject constructor(
 
     private val settingsEquationUIStateFlow = settingsRepository.getSettingsChangedFlow()
 
-    private val _minField = MutableStateFlow(SettingsUIField("-100"))
+    private val _minField = MutableStateFlow(SettingsUIField("-10"))
     val minField: StateFlow<SettingsUIField> = _minField
 
-    private val _maxField = MutableStateFlow(SettingsUIField("100"))
+    private val _maxField = MutableStateFlow(SettingsUIField("10"))
     val maxField: StateFlow<SettingsUIField> = _maxField
 
     private val _timeField = MutableStateFlow(SettingsUIField("5000"))
