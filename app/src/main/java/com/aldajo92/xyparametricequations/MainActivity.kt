@@ -11,8 +11,10 @@ import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -105,13 +107,13 @@ class MainActivity : ComponentActivity() {
                     }
                     // End Animation //////////////////////////////////////////////////////////////////////
 
-
                     Column(modifier = Modifier.fillMaxSize()) {
                         XYMainUI(
                             modifier = Modifier.weight(1f),
                             resolution = resolution,
                             circleSize = circleSize,
                             tParameter = tParameter,
+                            isDragEnabled = false,
                             parametricEquation = {
                                 viewModel.evaluateInEquation(it)
                             },
@@ -226,13 +228,20 @@ fun BoxScope.TopContent(
         text = "t: ${String.format("%.2f", tParameter)}",
         color = MaterialTheme.colors.onBackground
     )
-    Icon(
+    Row(
         modifier = Modifier
             .align(Alignment.TopEnd)
-            .padding(10.dp)
-            .clickable { playButtonClicked() },
-        painter = painterResource(if (isRunning) R.drawable.ic_stop else R.drawable.ic_play_arrow),
-        tint = Color.Green,
-        contentDescription = (if (isRunning) "Stop" else "Play")
-    )
+            .padding(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Icon(
+            modifier = Modifier
+                .clickable { playButtonClicked() },
+            painter = painterResource(if (isRunning) R.drawable.ic_stop else R.drawable.ic_play_arrow),
+            tint = Color.Green,
+            contentDescription = (if (isRunning) "Stop" else "Play")
+        )
+    }
+
+    // TODO Add drag icon here
 }
