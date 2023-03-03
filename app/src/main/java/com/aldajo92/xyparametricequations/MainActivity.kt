@@ -11,8 +11,10 @@ import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -69,8 +72,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    var resolution by remember { mutableStateOf(50f) }
+                    val resolution by remember { mutableStateOf(50f) } // TODO: Remove this
                     var circleSize by remember { mutableStateOf(40f) }
+                    var offsetOrigin by remember { mutableStateOf(Offset.Zero) }
 
                     val tParameter by viewModel.tParameterStateFlow.collectAsStateWithLifecycle()
 
@@ -105,23 +109,31 @@ class MainActivity : ComponentActivity() {
                     }
                     // End Animation //////////////////////////////////////////////////////////////////////
 
-
                     Column(modifier = Modifier.fillMaxSize()) {
                         XYMainUI(
                             modifier = Modifier.weight(1f),
                             resolution = resolution,
                             circleSize = circleSize,
                             tParameter = tParameter,
-                            parametricEquation = {
+                            offsetOrigin = offsetOrigin,
+                            isDragEnabled = true,
+                            onOffsetChange = { offsetChange ->
+                                offsetOrigin += offsetChange
+                            },
+                            evaluateCircleInParametricEquation = {
                                 viewModel.evaluateInEquation(it)
                             },
                             topContent = {
                                 TopContent(
                                     tParameter,
                                     isRunning = isRunning,
-                                ) {
-                                    viewModel.setIsRunning(!isRunning)
-                                }
+                                    onPlayClicked = {
+                                        viewModel.setIsRunning(!isRunning)
+                                    },
+                                    centerButtonClicked = {
+                                        offsetOrigin = Offset.Zero
+                                    }
+                                )
                             }
                         )
                         BottomInputEquations(
@@ -131,13 +143,9 @@ class MainActivity : ComponentActivity() {
                             onSettingsClicked = {
                                 showSettingsBottomSheet(
                                     settingsViewModel,
-                                    resolutionChange = {
-                                        resolution = it
-                                    },
                                     circleSizeChange = {
                                         circleSize = it
                                     },
-                                    defaultResolution = resolution,
                                     defaultCircleSize = circleSize
                                 )
                             },
@@ -219,20 +227,35 @@ class MainActivity : ComponentActivity() {
 fun BoxScope.TopContent(
     tParameter: Float = 0f,
     isRunning: Boolean = false,
-    playButtonClicked: () -> Unit = {}
+    onPlayClicked: () -> Unit = {},
+    centerButtonClicked: () -> Unit = {}
 ) {
     Text(
         modifier = Modifier.padding(10.dp),
         text = "t: ${String.format("%.2f", tParameter)}",
         color = MaterialTheme.colors.onBackground
     )
-    Icon(
+    Row(
         modifier = Modifier
             .align(Alignment.TopEnd)
-            .padding(10.dp)
-            .clickable { playButtonClicked() },
-        painter = painterResource(if (isRunning) R.drawable.ic_stop else R.drawable.ic_play_arrow),
-        tint = Color.Green,
-        contentDescription = (if (isRunning) "Stop" else "Play")
-    )
+            .padding(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Icon(
+            modifier = Modifier
+                .clickable { centerButtonClicked() },
+            painter = painterResource(R.drawable.icon_center_focus),
+            tint = MaterialTheme.colors.onBackground,
+            contentDescription = "Center origin"
+        )
+        Icon(
+            modifier = Modifier
+                .clickable { onPlayClicked() },
+            painter = painterResource(if (isRunning) R.drawable.ic_stop else R.drawable.ic_play_arrow),
+            tint = Color.Green,
+            contentDescription = (if (isRunning) "Stop" else "Play")
+        )
+        // TODO Add icon to enable zoom here
+    }
+
 }

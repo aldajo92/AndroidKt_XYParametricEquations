@@ -31,7 +31,6 @@ fun XYCircleComponent(
     }
 
     val circleCenter = parametricEquation(tParameter)
-
     val circleCenterOffset = circleCenter
         .invertYaxis()
         .toOffset(step)

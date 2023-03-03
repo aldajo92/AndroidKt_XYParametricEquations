@@ -2,6 +2,9 @@ package com.aldajo92.xyparametricequations.ui
 
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +19,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import com.aldajo92.xyparametricequations.domain.Point
 import kotlin.math.abs
@@ -28,11 +32,21 @@ fun XYMainUI(
     resolution: Float = 50f,
     tParameter: Float = 0f,
     circleSize: Float = 40f,
-    parametricEquation: (Float) -> Point = { Point(it, it) }
+    isDragEnabled: Boolean = true,
+    offsetOrigin: Offset = Offset.Zero,
+    onOffsetChange: (Offset) -> Unit = {},
+    evaluateCircleInParametricEquation: (Float) -> Point = { Point(it, it) }
 ) {
     var width by remember { mutableStateOf(0f) }
     var height by remember { mutableStateOf(0f) }
-    var step by remember { mutableStateOf(0f) }
+    var stepNumbers by remember { mutableStateOf(0f) }
+
+    var scale by remember { mutableStateOf(1 / resolution) } // TODO: Remove this to remember
+
+    val state = rememberTransformableState { zoomChange, offsetChange, _ ->
+        scale *= zoomChange
+        onOffsetChange(offsetChange)
+    }
 
     Box(
         modifier
@@ -41,31 +55,40 @@ fun XYMainUI(
                 layout(placeable.width, placeable.height) {
                     width = placeable.width.toFloat()
                     height = placeable.height.toFloat()
-                    step = min(width, height) / resolution
+                    stepNumbers = min(width, height) * scale
                     placeable.placeRelative(0, 0)
                 }
             }
+            .pointerInput(Unit) {
+                if (isDragEnabled) detectDragGestures { change, dragAmount ->
+                    change.consume()
+                    onOffsetChange(dragAmount)
+                }
+            }
+            .transformable(state = state)
     ) {
         val screenBottomRightCorner = Offset(width, height)
-        val newOriginOffset = screenBottomRightCorner / 2f
+        // val newOriginOffset = Offset(50f, screenBottomRightCorner.y -50f) // TODO: Use this to include in configuration
+        val defaultOrigin = (screenBottomRightCorner / 2f) + offsetOrigin
+
         XYAxisBoard(
             modifier = Modifier.fillMaxSize(),
-            pointOrigin = newOriginOffset,
+            pointOrigin = defaultOrigin,
             width = width,
             height = height,
-            step = step,
+            step = stepNumbers,
             colorAxisX = MaterialTheme.colors.onBackground,
             colorAxisY = MaterialTheme.colors.onBackground
         )
         XYCircleComponent(
             modifier = Modifier.fillMaxSize(),
-            pointOrigin = newOriginOffset,
-            step = step,
+            pointOrigin = defaultOrigin,
+            step = stepNumbers,
             circleColor = Color.Red,
             lineColor = MaterialTheme.colors.onBackground,
             tParameter = tParameter,
             circleSize = circleSize,
-            parametricEquation = parametricEquation
+            parametricEquation = evaluateCircleInParametricEquation
         )
         topContent?.let { it() }
     }
@@ -81,8 +104,8 @@ fun XYAxisBoard(
     colorAxisX: Color = Color.Blue,
     colorAxisY: Color = Color.Blue
 ) {
-
     if (step < 0f) throw Exception("Value for step must be positive. Current value is $step")
+    if (step == 0f) return
 
     val divisionLength = 10f
     val textSizePixels = 30f
@@ -101,46 +124,34 @@ fun XYAxisBoard(
     Canvas(modifier = modifier) {
         drawLine(
             color = colorAxisX,
-            start = Offset(0f, height / 2),
-            end = Offset(width, height / 2)
+            start = Offset(0f, pointOrigin.y),
+            end = Offset(width, pointOrigin.y)
         )
         drawLine(
             color = colorAxisY,
-            start = Offset(width / 2, 0f),
-            end = Offset(width / 2, height)
+            start = Offset(pointOrigin.x, 0f),
+            end = Offset(pointOrigin.x, height)
         )
 
         var divisionPosition: Float
 
         divisionPosition = 0f
         var j = 0
-        while (abs(divisionPosition) < (width / 2)) {
+        var xStepPositive: Float
+        while (abs(divisionPosition) <= width - pointOrigin.x) {
             divisionPosition = j * step
+            xStepPositive = pointOrigin.x + divisionPosition
             drawLine(
                 color = colorAxisX,
-                start = Offset(pointOrigin.x - divisionPosition, (height / 2) - divisionLength),
-                end = Offset(pointOrigin.x - divisionPosition, (height / 2) + divisionLength),
-                strokeWidth = 2f
-            )
-            drawLine(
-                color = colorAxisX,
-                start = Offset(pointOrigin.x + divisionPosition, (height / 2) - divisionLength),
-                end = Offset(pointOrigin.x + divisionPosition, (height / 2) + divisionLength),
+                start = Offset(xStepPositive, pointOrigin.y - divisionLength),
+                end = Offset(xStepPositive, pointOrigin.y + divisionLength),
                 strokeWidth = 2f
             )
             if (j % 5 == 0 && j > 0) {
                 drawContext.canvas.nativeCanvas.apply {
                     drawText(
                         j.toString(),
-                        pointOrigin.x + divisionPosition,
-                        pointOrigin.y + divisionLength + textSizePixels,
-                        textPaintX
-                    )
-                }
-                drawContext.canvas.nativeCanvas.apply {
-                    drawText(
-                        (-j).toString(),
-                        pointOrigin.x - divisionPosition - (textSizePixels / 7f),
+                        xStepPositive,
                         pointOrigin.y + divisionLength + textSizePixels,
                         textPaintX
                     )
@@ -150,19 +161,43 @@ fun XYAxisBoard(
         }
 
         divisionPosition = 0f
-        var i = 0
-        while (abs(divisionPosition) < (height / 2f)) {
-            divisionPosition = i * step
+        j = 0
+        var xStepNegative: Float
+        while (abs(divisionPosition) <= pointOrigin.x) {
+            divisionPosition = j * step
+            xStepNegative = pointOrigin.x - divisionPosition
             drawLine(
-                color = colorAxisY,
-                start = Offset((width / 2) - divisionLength, pointOrigin.y - divisionPosition),
-                end = Offset((width / 2f) + divisionLength, pointOrigin.y - divisionPosition),
+                color = colorAxisX,
+                start = Offset(xStepNegative, pointOrigin.y - divisionLength),
+                end = Offset(xStepNegative, pointOrigin.y + divisionLength),
                 strokeWidth = 2f
             )
+            if (j % 5 == 0 && j > 0) {
+                drawContext.canvas.nativeCanvas.apply {
+                    drawText(
+                        (-j).toString(),
+                        xStepNegative - (textSizePixels / 7f),
+                        pointOrigin.y + divisionLength + textSizePixels,
+                        textPaintX
+                    )
+                }
+            }
+            j++
+        }
+
+
+        divisionPosition = 0f
+        var i = 0
+        var yStepPositive: Float
+        while (
+            abs(divisionPosition) <= pointOrigin.y
+        ) {
+            divisionPosition = i * step
+            yStepPositive = pointOrigin.y - divisionPosition
             drawLine(
                 color = colorAxisY,
-                start = Offset((width / 2) - divisionLength, pointOrigin.y + divisionPosition),
-                end = Offset((width / 2f) + divisionLength, pointOrigin.y + divisionPosition),
+                start = Offset(pointOrigin.x - divisionLength, yStepPositive),
+                end = Offset(pointOrigin.x + divisionLength, yStepPositive),
                 strokeWidth = 2f
             )
             if (i % 5 == 0 && i > 0) {
@@ -170,15 +205,34 @@ fun XYAxisBoard(
                     drawText(
                         i.toString(),
                         pointOrigin.x - divisionLength,
-                        pointOrigin.y - divisionPosition + 10f,
+                        yStepPositive + 10f,
                         textPaintY
                     )
                 }
+            }
+            i++
+        }
+
+        divisionPosition = 0f
+        i = 0
+        var yStepNegative: Float
+        while (
+            abs(divisionPosition) <= height - pointOrigin.y
+        ) {
+            divisionPosition = i * step
+            yStepNegative = pointOrigin.y + divisionPosition
+            drawLine(
+                color = colorAxisY,
+                start = Offset(pointOrigin.x - divisionLength, yStepNegative),
+                end = Offset(pointOrigin.x + divisionLength, yStepNegative),
+                strokeWidth = 2f
+            )
+            if (i % 5 == 0 && i > 0) {
                 drawContext.canvas.nativeCanvas.apply {
                     drawText(
                         (-i).toString(),
                         pointOrigin.x - divisionLength,
-                        pointOrigin.y + divisionPosition + 10f,
+                        yStepNegative + 10f,
                         textPaintY
                     )
                 }
@@ -187,4 +241,3 @@ fun XYAxisBoard(
         }
     }
 }
-
