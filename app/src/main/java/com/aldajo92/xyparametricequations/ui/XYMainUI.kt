@@ -33,18 +33,19 @@ fun XYMainUI(
     tParameter: Float = 0f,
     circleSize: Float = 40f,
     isDragEnabled: Boolean = true,
-    parametricEquation: (Float) -> Point = { Point(it, it) }
+    offsetOrigin: Offset = Offset.Zero,
+    onOffsetChange: (Offset) -> Unit = {},
+    evaluateCircleInParametricEquation: (Float) -> Point = { Point(it, it) }
 ) {
     var width by remember { mutableStateOf(0f) }
     var height by remember { mutableStateOf(0f) }
     var stepNumbers by remember { mutableStateOf(0f) }
 
     var scale by remember { mutableStateOf(1 / resolution) } // TODO: Remove this to remember
-    var offsetOrigin by remember { mutableStateOf(Offset.Zero) }
 
     val state = rememberTransformableState { zoomChange, offsetChange, _ ->
         scale *= zoomChange
-        offsetOrigin += offsetChange
+        onOffsetChange(offsetChange)
     }
 
     Box(
@@ -61,7 +62,7 @@ fun XYMainUI(
             .pointerInput(Unit) {
                 if (isDragEnabled) detectDragGestures { change, dragAmount ->
                     change.consume()
-                    offsetOrigin += dragAmount
+                    onOffsetChange(dragAmount)
                 }
             }
             .transformable(state = state)
@@ -87,7 +88,7 @@ fun XYMainUI(
             lineColor = MaterialTheme.colors.onBackground,
             tParameter = tParameter,
             circleSize = circleSize,
-            parametricEquation = parametricEquation
+            parametricEquation = evaluateCircleInParametricEquation
         )
         topContent?.let { it() }
     }

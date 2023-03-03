@@ -83,21 +83,6 @@ fun Activity.showSettingsBottomSheet(
                             circleSizeChange(it)
                             currentCircleSize = it
                         }
-//                        SettingsComponentSlider(
-//                            modifier = Modifier.fillMaxWidth(),
-//                            textTitle = "Resolution: ${
-//                                String.format(
-//                                    "%.2f",
-//                                    currentResolution
-//                                )
-//                            }",
-//                            startValue = defaultResolution,
-//                            selection = currentResolution,
-//                            range = 12f..100f
-//                        ) {
-//                            resolutionChange(it)
-//                            currentResolution = it
-//                        }
                         Text(
                             text = "Parameters",
                             modifier = Modifier

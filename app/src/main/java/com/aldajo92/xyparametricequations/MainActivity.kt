@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -73,6 +74,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val resolution by remember { mutableStateOf(50f) } // TODO: Remove this
                     var circleSize by remember { mutableStateOf(40f) }
+                    var offsetOrigin by remember { mutableStateOf(Offset.Zero) }
 
                     val tParameter by viewModel.tParameterStateFlow.collectAsStateWithLifecycle()
 
@@ -113,17 +115,25 @@ class MainActivity : ComponentActivity() {
                             resolution = resolution,
                             circleSize = circleSize,
                             tParameter = tParameter,
+                            offsetOrigin = offsetOrigin,
                             isDragEnabled = true,
-                            parametricEquation = {
+                            onOffsetChange = { offsetChange ->
+                                offsetOrigin += offsetChange
+                            },
+                            evaluateCircleInParametricEquation = {
                                 viewModel.evaluateInEquation(it)
                             },
                             topContent = {
                                 TopContent(
                                     tParameter,
                                     isRunning = isRunning,
-                                ) {
-                                    viewModel.setIsRunning(!isRunning)
-                                }
+                                    onPlayClicked = {
+                                        viewModel.setIsRunning(!isRunning)
+                                    },
+                                    centerButtonClicked = {
+                                        offsetOrigin = Offset.Zero
+                                    }
+                                )
                             }
                         )
                         BottomInputEquations(
@@ -217,7 +227,8 @@ class MainActivity : ComponentActivity() {
 fun BoxScope.TopContent(
     tParameter: Float = 0f,
     isRunning: Boolean = false,
-    playButtonClicked: () -> Unit = {}
+    onPlayClicked: () -> Unit = {},
+    centerButtonClicked: () -> Unit = {}
 ) {
     Text(
         modifier = Modifier.padding(10.dp),
@@ -232,13 +243,19 @@ fun BoxScope.TopContent(
     ) {
         Icon(
             modifier = Modifier
-                .clickable { playButtonClicked() },
+                .clickable { centerButtonClicked() },
+            painter = painterResource(R.drawable.icon_center_focus),
+            tint = MaterialTheme.colors.onBackground,
+            contentDescription = "Center origin"
+        )
+        Icon(
+            modifier = Modifier
+                .clickable { onPlayClicked() },
             painter = painterResource(if (isRunning) R.drawable.ic_stop else R.drawable.ic_play_arrow),
             tint = Color.Green,
             contentDescription = (if (isRunning) "Stop" else "Play")
         )
-        // TODO Add icon to zoom enable here
-        // TODO Add icon to center origin here
+        // TODO Add icon to enable zoom here
     }
 
 }
