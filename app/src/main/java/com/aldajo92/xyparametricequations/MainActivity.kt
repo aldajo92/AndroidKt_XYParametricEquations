@@ -77,6 +77,7 @@ class MainActivity : ComponentActivity() {
                     var offsetOrigin by remember { mutableStateOf(Offset.Zero) }
 
                     val tParameter by viewModel.tParameterStateFlow.collectAsStateWithLifecycle()
+                    val tParameterPrevious by viewModel.tParameterPreviousStateFlow.collectAsStateWithLifecycle()
 
                     val settings by viewModel.settingsEquationFlow.collectAsStateWithLifecycle(
                         SettingsAnimation()
@@ -117,6 +118,7 @@ class MainActivity : ComponentActivity() {
                             tParameter = tParameter,
                             offsetOrigin = offsetOrigin,
                             isDragEnabled = true,
+                            showPath = isRunning && tParameter > tParameterPrevious,
                             onOffsetChange = { offsetChange ->
                                 offsetOrigin += offsetChange
                             },

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,11 +18,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.dp
 import com.aldajo92.xyparametricequations.domain.Point
+import com.aldajo92.xyparametricequations.domain.invertYaxis
+import com.aldajo92.xyparametricequations.domain.toOffset
+import com.aldajo92.xyparametricequations.domain.translate
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -34,6 +40,7 @@ fun XYMainUI(
     circleSizeInUnits: Float = 1.75f,
     isDragEnabled: Boolean = true,
     offsetOrigin: Offset = Offset.Zero,
+    showPath: Boolean = false,
     onOffsetChange: (Offset) -> Unit = {},
     onZoomChange: (Float) -> Unit = {},
     evaluateCircleInParametricEquation: (Float) -> Point = { Point(it, it) }
@@ -68,6 +75,8 @@ fun XYMainUI(
         val screenBottomRightCorner = Offset(localWidth, localHeight)
         // val newOriginOffset = Offset(50f, screenBottomRightCorner.y -50f) // TODO: Use this to include in configuration
         val defaultOrigin = (screenBottomRightCorner / 2f) + offsetOrigin
+        var currentCirclePositionOffset: Offset? by remember { mutableStateOf(null) }
+        var currentCirclePoint: Point? by remember { mutableStateOf(null) }
 
         XYAxisBoard(
             modifier = Modifier.fillMaxSize(),
@@ -87,8 +96,74 @@ fun XYMainUI(
             tParameter = tParameter,
             circleSize = circleSizeInUnits * pixelsPerUnits,
             parametricEquation = evaluateCircleInParametricEquation
+        ) { circlePointPosition, circlePositionOffset ->
+            currentCirclePoint = circlePointPosition
+            currentCirclePositionOffset = circlePositionOffset
+        }
+        XYPathComponent(
+            modifier = Modifier.fillMaxSize(),
+            pointOrigin = defaultOrigin,
+            pixelsPerUnits = pixelsPerUnits,
+            newPoint = currentCirclePoint,
+            showPath = showPath
         )
         topContent?.let { it() }
+    }
+}
+
+// TODO: Consider use coroutines to draw the path: https://stackoverflow.com/questions/64116377/how-to-call-kotlin-coroutine-in-composable-function-callbacks
+@Composable
+fun XYPathComponent(
+    modifier: Modifier = Modifier,
+    pathColor: Color = Color.Green,
+    pointOrigin: Offset,
+    pixelsPerUnits: Float,
+    showPath: Boolean = false,
+    newPoint: Point? = null,
+) {
+
+    val pointsOffsetWithoutTranslation = remember { mutableListOf<Offset>() }
+
+    LaunchedEffect(showPath) {
+        if (!showPath) {
+            pointsOffsetWithoutTranslation.clear()
+        }
+    }
+
+    LaunchedEffect(newPoint) {
+        if (newPoint != null && showPath) {
+            pointsOffsetWithoutTranslation.add(
+                newPoint.invertYaxis()
+                    .toOffset(pixelsPerUnits)
+                    .let {
+                        if (it == Offset.Unspecified) Offset(0f, 0f) else it
+                    }
+            )
+        } else {
+            pointsOffsetWithoutTranslation.clear()
+        }
+
+        if (pointsOffsetWithoutTranslation.size > 20) {
+            pointsOffsetWithoutTranslation.removeAt(0)
+        }
+    }
+
+    if (pointsOffsetWithoutTranslation.isNotEmpty()) Canvas(modifier = modifier.fillMaxSize()) {
+        pointsOffsetWithoutTranslation.forEachIndexed { index, point ->
+            if (index > 0) {
+                val pointRespectToOriginPrevious = pointsOffsetWithoutTranslation[index - 1]
+                    .translate(pointOrigin)
+                val pointRespectToOrigin = point
+                    .translate(pointOrigin)
+                drawLine(
+                    color = pathColor,
+                    start = pointRespectToOriginPrevious,
+                    end = pointRespectToOrigin,
+                    strokeWidth = 2.dp.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
+                )
+            }
+        }
     }
 }
 
@@ -102,7 +177,7 @@ fun XYAxisBoard(
     colorAxisX: Color = Color.Blue,
     colorAxisY: Color = Color.Blue
 ) {
-    if (pixelsPerUnits < 0f) throw Exception("Value for step must be positive. Current value is $pixelsPerUnits")
+    if (pixelsPerUnits < 0f) throw Exception("Value for pixelsPerUnits must be positive. Current value is $pixelsPerUnits")
     if (pixelsPerUnits == 0f) return
 
     val divisionLength = 10f

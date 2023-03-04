@@ -23,7 +23,8 @@ fun XYCircleComponent(
     pointOrigin: Offset,
     pixelsPerUnits: Float,
     tParameter: Float = 0f,
-    parametricEquation: (Float) -> Point = { Point(it, it) }
+    parametricEquation: (Float) -> Point = { Point(it, it) },
+    currentBallPosition: (Point, Offset) -> Unit = { _, _ -> }
 ) {
     val pathEffect = remember {
         PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
@@ -58,4 +59,6 @@ fun XYCircleComponent(
             pathEffect = pathEffect
         )
     }
+
+    currentBallPosition(circleCenter, circleCenterOffset)
 }
