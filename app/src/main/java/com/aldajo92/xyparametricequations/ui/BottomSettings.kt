@@ -64,8 +64,7 @@ fun InputEquationsRow(
 fun SliderForTParameter(
     modifier: Modifier = Modifier,
     range: ClosedFloatingPointRange<Float> = 0f..100f,
-    startValue: Float = (range.start + range.endInclusive) / 2f,
-    tParameter: Float = startValue,
+    tParameter: Float = (range.start + range.endInclusive) / 2f,
     enableSlider: Boolean = true,
     onSettingsClicked: () -> Unit = {},
     onValueChanged: (Float) -> Unit = {}

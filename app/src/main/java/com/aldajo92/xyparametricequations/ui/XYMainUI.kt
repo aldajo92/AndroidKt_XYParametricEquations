@@ -29,23 +29,22 @@ import kotlin.math.min
 fun XYMainUI(
     modifier: Modifier = Modifier,
     topContent: (@Composable BoxScope.() -> Unit)? = null,
-    resolution: Float = 50f,
+    minUnitsAxisScreen: Float = 50f,
     tParameter: Float = 0f,
-    circleSize: Float = 40f,
+    circleSizeInUnits: Float = 1.75f,
     isDragEnabled: Boolean = true,
     offsetOrigin: Offset = Offset.Zero,
     onOffsetChange: (Offset) -> Unit = {},
+    onZoomChange: (Float) -> Unit = {},
     evaluateCircleInParametricEquation: (Float) -> Point = { Point(it, it) }
 ) {
-    var width by remember { mutableStateOf(0f) }
-    var height by remember { mutableStateOf(0f) }
-    var stepNumbers by remember { mutableStateOf(0f) }
-
-    var scale by remember { mutableStateOf(1 / resolution) } // TODO: Remove this to remember
+    var localWidth by remember { mutableStateOf(0f) }
+    var localHeight by remember { mutableStateOf(0f) }
+    val pixelsPerUnits = min(localWidth, localHeight) / minUnitsAxisScreen
 
     val state = rememberTransformableState { zoomChange, offsetChange, _ ->
-        scale *= zoomChange
         onOffsetChange(offsetChange)
+        onZoomChange(zoomChange)
     }
 
     Box(
@@ -53,9 +52,8 @@ fun XYMainUI(
             .layout { measurable, constraints ->
                 val placeable = measurable.measure(constraints)
                 layout(placeable.width, placeable.height) {
-                    width = placeable.width.toFloat()
-                    height = placeable.height.toFloat()
-                    stepNumbers = min(width, height) * scale
+                    localWidth = placeable.width.toFloat()
+                    localHeight = placeable.height.toFloat()
                     placeable.placeRelative(0, 0)
                 }
             }
@@ -67,27 +65,27 @@ fun XYMainUI(
             }
             .transformable(state = state)
     ) {
-        val screenBottomRightCorner = Offset(width, height)
+        val screenBottomRightCorner = Offset(localWidth, localHeight)
         // val newOriginOffset = Offset(50f, screenBottomRightCorner.y -50f) // TODO: Use this to include in configuration
         val defaultOrigin = (screenBottomRightCorner / 2f) + offsetOrigin
 
         XYAxisBoard(
             modifier = Modifier.fillMaxSize(),
             pointOrigin = defaultOrigin,
-            width = width,
-            height = height,
-            step = stepNumbers,
+            width = localWidth,
+            height = localHeight,
+            pixelsPerUnits = pixelsPerUnits,
             colorAxisX = MaterialTheme.colors.onBackground,
             colorAxisY = MaterialTheme.colors.onBackground
         )
         XYCircleComponent(
             modifier = Modifier.fillMaxSize(),
             pointOrigin = defaultOrigin,
-            step = stepNumbers,
+            pixelsPerUnits = pixelsPerUnits,
             circleColor = Color.Red,
             lineColor = MaterialTheme.colors.onBackground,
             tParameter = tParameter,
-            circleSize = circleSize,
+            circleSize = circleSizeInUnits * pixelsPerUnits,
             parametricEquation = evaluateCircleInParametricEquation
         )
         topContent?.let { it() }
@@ -100,12 +98,12 @@ fun XYAxisBoard(
     pointOrigin: Offset,
     width: Float,
     height: Float,
-    step: Float,
+    pixelsPerUnits: Float,
     colorAxisX: Color = Color.Blue,
     colorAxisY: Color = Color.Blue
 ) {
-    if (step < 0f) throw Exception("Value for step must be positive. Current value is $step")
-    if (step == 0f) return
+    if (pixelsPerUnits < 0f) throw Exception("Value for step must be positive. Current value is $pixelsPerUnits")
+    if (pixelsPerUnits == 0f) return
 
     val divisionLength = 10f
     val textSizePixels = 30f
@@ -139,7 +137,7 @@ fun XYAxisBoard(
         var j = 0
         var xStepPositive: Float
         while (abs(divisionPosition) <= width - pointOrigin.x) {
-            divisionPosition = j * step
+            divisionPosition = j * pixelsPerUnits
             xStepPositive = pointOrigin.x + divisionPosition
             drawLine(
                 color = colorAxisX,
@@ -164,7 +162,7 @@ fun XYAxisBoard(
         j = 0
         var xStepNegative: Float
         while (abs(divisionPosition) <= pointOrigin.x) {
-            divisionPosition = j * step
+            divisionPosition = j * pixelsPerUnits
             xStepNegative = pointOrigin.x - divisionPosition
             drawLine(
                 color = colorAxisX,
@@ -185,14 +183,13 @@ fun XYAxisBoard(
             j++
         }
 
-
         divisionPosition = 0f
         var i = 0
         var yStepPositive: Float
         while (
             abs(divisionPosition) <= pointOrigin.y
         ) {
-            divisionPosition = i * step
+            divisionPosition = i * pixelsPerUnits
             yStepPositive = pointOrigin.y - divisionPosition
             drawLine(
                 color = colorAxisY,
@@ -219,7 +216,7 @@ fun XYAxisBoard(
         while (
             abs(divisionPosition) <= height - pointOrigin.y
         ) {
-            divisionPosition = i * step
+            divisionPosition = i * pixelsPerUnits
             yStepNegative = pointOrigin.y + divisionPosition
             drawLine(
                 color = colorAxisY,
