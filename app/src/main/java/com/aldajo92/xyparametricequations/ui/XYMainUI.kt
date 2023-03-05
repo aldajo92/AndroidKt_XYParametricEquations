@@ -18,7 +18,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
@@ -121,8 +120,7 @@ fun XYPathComponent(
     showPath: Boolean = false,
     newPoint: Point? = null,
 ) {
-
-    val pointsOffsetWithoutTranslation = remember { mutableListOf<Offset>() }
+    val pointsOffsetWithoutTranslation = remember { mutableListOf<Point>() }
 
     LaunchedEffect(showPath) {
         if (!showPath) {
@@ -134,10 +132,6 @@ fun XYPathComponent(
         if (newPoint != null && showPath) {
             pointsOffsetWithoutTranslation.add(
                 newPoint.invertYaxis()
-                    .toOffset(pixelsPerUnits)
-                    .let {
-                        if (it == Offset.Unspecified) Offset(0f, 0f) else it
-                    }
             )
         } else {
             pointsOffsetWithoutTranslation.clear()
@@ -152,8 +146,10 @@ fun XYPathComponent(
         pointsOffsetWithoutTranslation.forEachIndexed { index, point ->
             if (index > 0) {
                 val pointRespectToOriginPrevious = pointsOffsetWithoutTranslation[index - 1]
+                    .toOffset(pixelsPerUnits)
                     .translate(pointOrigin)
                 val pointRespectToOrigin = point
+                    .toOffset(pixelsPerUnits)
                     .translate(pointOrigin)
                 drawLine(
                     color = pathColor,
