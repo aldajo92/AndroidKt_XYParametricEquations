@@ -28,12 +28,16 @@ class SettingsViewModel @Inject constructor(
     private val _timeField = MutableStateFlow(SettingsUIField("5000"))
     val timeField: StateFlow<SettingsUIField> = _timeField
 
+    private val _showPath = MutableStateFlow(true)
+    val showPath: StateFlow<Boolean> = _showPath
+
     init {
         viewModelScope.launch {
             settingsEquationUIStateFlow.collect {
                 _minField.value = SettingsUIField(it.tMin.toString())
                 _maxField.value = SettingsUIField(it.tMax.toString())
                 _timeField.value = SettingsUIField(it.timeDurationMillis.toString())
+                _showPath.value = it.showPath
             }
         }
     }
@@ -82,21 +86,36 @@ class SettingsViewModel @Inject constructor(
                     errorMessage = if (showError) "Invalid time" else ""
                 )
             }
+            SettingsType.SHOW_PATH -> {
+                val time = it.toBooleanStrictOrNull()
+                _showPath.value = time == true
+                viewModelScope.launch {
+                    // TODO: Temporal solution: Repository should save fields with a key
+                    val settingsAnimation = getSettingsAnimationCurrentValues()
+                    settingsRepository.saveData(SettingsType.ALL_SETTINGS, settingsAnimation)
+                }
+            }
             else -> Unit
         }
     }
 
     fun saveData() {
-        val min = _minField.value.value.toFloatOrNull() ?: Float.MIN_VALUE
-        val max = _maxField.value.value.toFloatOrNull() ?: Float.MAX_VALUE
-        val settingsAnimation = SettingsAnimation(
-            tMin = min,
-            tMax = max,
-            timeDurationMillis = 5000
-        )
+        val settingsAnimation = getSettingsAnimationCurrentValues()
         viewModelScope.launch {
             settingsRepository.saveData(SettingsType.ALL_SETTINGS, settingsAnimation)
         }
+    }
+
+    private fun getSettingsAnimationCurrentValues() : SettingsAnimation{
+        val min = _minField.value.value.toFloatOrNull() ?: Float.MIN_VALUE
+        val max = _maxField.value.value.toFloatOrNull() ?: Float.MAX_VALUE
+        val time = _timeField.value.value.toIntOrNull() ?: 5000
+        return SettingsAnimation(
+            tMin = min,
+            tMax = max,
+            timeDurationMillis = time,
+            showPath = _showPath.value
+        )
     }
 }
 

@@ -160,7 +160,7 @@ fun XYPathComponent(
                     start = pointRespectToOriginPrevious,
                     end = pointRespectToOrigin,
                     strokeWidth = 2.dp.toPx(),
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
+                    // pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
                 )
             }
         }
