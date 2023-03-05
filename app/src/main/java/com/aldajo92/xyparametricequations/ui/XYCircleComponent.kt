@@ -19,13 +19,12 @@ fun XYCircleComponent(
     modifier: Modifier = Modifier,
     circleColor: Color = Color.Blue,
     lineColor: Color = Color.Blue,
-    circleSize : Float = 40f,
+    circleSize: Float = 40f,
     pointOrigin: Offset,
-    step: Float,
+    pixelsPerUnits: Float,
     tParameter: Float = 0f,
     parametricEquation: (Float) -> Point = { Point(it, it) }
 ) {
-
     val pathEffect = remember {
         PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
     }
@@ -33,13 +32,13 @@ fun XYCircleComponent(
     val circleCenter = parametricEquation(tParameter)
     val circleCenterOffset = circleCenter
         .invertYaxis()
-        .toOffset(step)
+        .toOffset(pixelsPerUnits)
         .let {
             if (it == Offset.Unspecified) Offset(0f, 0f) else it
         }
         .translate(pointOrigin)
 
-    if (step > 0) Canvas(modifier = modifier.fillMaxSize()) {
+    if (pixelsPerUnits > 0) Canvas(modifier = modifier.fillMaxSize()) {
         drawCircle(
             color = circleColor,
             radius = circleSize,
@@ -59,15 +58,4 @@ fun XYCircleComponent(
             pathEffect = pathEffect
         )
     }
-//    TODO: Pending to move it as a separate feature
-//    Button(
-//        modifier = Modifier
-//            .padding(10.dp)
-//            .align(Alignment.TopEnd),
-//        onClick = {
-//            isRunning = !isRunning
-//        }
-//    ) {
-//        Text(if (isRunning) "Stop Animation" else "Start Animation")
-//    }
 }

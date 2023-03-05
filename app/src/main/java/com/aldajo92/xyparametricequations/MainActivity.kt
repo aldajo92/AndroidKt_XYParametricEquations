@@ -72,8 +72,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    val resolution by remember { mutableStateOf(50f) } // TODO: Remove this
-                    var circleSize by remember { mutableStateOf(40f) }
+                    var minUnitsAxisScreen by remember { mutableStateOf(50f) } // TODO: Remove this
+                    var circleSizeUnits by remember { mutableStateOf(1.75f) }
                     var offsetOrigin by remember { mutableStateOf(Offset.Zero) }
 
                     val tParameter by viewModel.tParameterStateFlow.collectAsStateWithLifecycle()
@@ -111,14 +111,17 @@ class MainActivity : ComponentActivity() {
 
                     Column(modifier = Modifier.fillMaxSize()) {
                         XYMainUI(
-                            modifier = Modifier.weight(1f),
-                            resolution = resolution,
-                            circleSize = circleSize,
+                            modifier = Modifier.fillMaxWidth().weight(1f),
+                            minUnitsAxisScreen = minUnitsAxisScreen,
+                            circleSizeInUnits = circleSizeUnits,
                             tParameter = tParameter,
                             offsetOrigin = offsetOrigin,
                             isDragEnabled = true,
                             onOffsetChange = { offsetChange ->
                                 offsetOrigin += offsetChange
+                            },
+                            onZoomChange = { zoomChange ->
+                                minUnitsAxisScreen /= zoomChange
                             },
                             evaluateCircleInParametricEquation = {
                                 viewModel.evaluateInEquation(it)
@@ -132,6 +135,7 @@ class MainActivity : ComponentActivity() {
                                     },
                                     centerButtonClicked = {
                                         offsetOrigin = Offset.Zero
+                                        minUnitsAxisScreen = 50f
                                     }
                                 )
                             }
@@ -144,9 +148,9 @@ class MainActivity : ComponentActivity() {
                                 showSettingsBottomSheet(
                                     settingsViewModel,
                                     circleSizeChange = {
-                                        circleSize = it
+                                        circleSizeUnits = it
                                     },
-                                    defaultCircleSize = circleSize
+                                    defaultCircleSize = circleSizeUnits
                                 )
                             },
                             sliderChange = {
@@ -213,7 +217,6 @@ class MainActivity : ComponentActivity() {
             SliderForTParameter(
                 modifier = Modifier.fillMaxWidth(),
                 range = tRange,
-                // startValue: Float = (range.start + range.endInclusive) / 2f,
                 tParameter = tParameter,
                 onSettingsClicked = onSettingsClicked,
                 onValueChanged = sliderChange,
