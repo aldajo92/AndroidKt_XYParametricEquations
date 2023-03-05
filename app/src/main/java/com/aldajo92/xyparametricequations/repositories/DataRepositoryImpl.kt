@@ -10,7 +10,6 @@ import javax.inject.Inject
 class DataRepositoryImpl @Inject constructor(
     private val settingsDatasource: DataSourceFlow<SettingsAnimation>
 ) : DataRepository<SettingsType, SettingsAnimation> {
-    
 
     override suspend fun saveData(key: SettingsType, value: SettingsAnimation) {
         settingsDatasource.saveData(value)

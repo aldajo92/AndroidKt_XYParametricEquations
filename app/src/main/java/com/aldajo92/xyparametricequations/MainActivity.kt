@@ -53,7 +53,7 @@ import dagger.hilt.android.AndroidEntryPoint
 * Add configuration section. (Done)
 * Add animation for t parameter. (Done).
 * Add time duration for animation. (Done)
-* Show path when t parameter increases.
+* Show path when t parameter increases. (Done)
 * Enable, disable vector for point.
 *  */
 
@@ -77,6 +77,7 @@ class MainActivity : ComponentActivity() {
                     var offsetOrigin by remember { mutableStateOf(Offset.Zero) }
 
                     val tParameter by viewModel.tParameterStateFlow.collectAsStateWithLifecycle()
+                    val tParameterPrevious by viewModel.tParameterPreviousStateFlow.collectAsStateWithLifecycle()
 
                     val settings by viewModel.settingsEquationFlow.collectAsStateWithLifecycle(
                         SettingsAnimation()
@@ -85,6 +86,7 @@ class MainActivity : ComponentActivity() {
                     val tParameterStart = settings.tMin
                     val tParameterEnd = settings.tMax
                     val timeDurationMillis = settings.timeDurationMillis
+                    val showPath = settings.showPath
 
 
                     // Animation ////////////////////////////////////////////////////////////////////////////
@@ -117,6 +119,7 @@ class MainActivity : ComponentActivity() {
                             tParameter = tParameter,
                             offsetOrigin = offsetOrigin,
                             isDragEnabled = true,
+                            showPath = showPath && isRunning && tParameter > tParameterPrevious, // TODO: Improve this
                             onOffsetChange = { offsetChange ->
                                 offsetOrigin += offsetChange
                             },

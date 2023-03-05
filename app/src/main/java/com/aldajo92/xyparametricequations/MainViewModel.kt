@@ -22,6 +22,9 @@ class MainViewModel @Inject constructor(
     private val _tParameter = MutableStateFlow(0f)
     val tParameterStateFlow get() : StateFlow<Float> = _tParameter
 
+    private val _tParameterPrevious = MutableStateFlow(0f)
+    val tParameterPreviousStateFlow get() : StateFlow<Float> = _tParameterPrevious
+
     private val _isRunning = MutableStateFlow(false)
     val isRunningStateFlow get() : StateFlow<Boolean> = _isRunning
 
@@ -105,6 +108,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun setTParameter(t: Float) {
+        _tParameterPrevious.value = _tParameter.value
         _tParameter.value = t
     }
 

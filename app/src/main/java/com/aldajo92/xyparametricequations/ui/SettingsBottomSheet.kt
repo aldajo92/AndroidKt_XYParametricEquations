@@ -42,6 +42,7 @@ fun Activity.showSettingsBottomSheet(
         val tMinValueField by settingsViewModel.minField.collectAsStateWithLifecycle()
         val tMaxValueField by settingsViewModel.maxField.collectAsStateWithLifecycle()
         val timeDurationValueField by settingsViewModel.timeField.collectAsStateWithLifecycle()
+        val showPathField by settingsViewModel.showPath.collectAsStateWithLifecycle()
 
         val enableButtonState by settingsViewModel.enableButtonStateFlow.collectAsStateWithLifecycle(
             false
@@ -77,11 +78,17 @@ fun Activity.showSettingsBottomSheet(
                                 )
                             }",
                             startValue = defaultCircleSize,
-                            range = 1f..40f,
+                            range = 0.1f..40f,
                             selection = currentCircleSize
                         ) {
                             circleSizeChange(it)
                             currentCircleSize = it
+                        }
+                        SettingsComponentToggle(
+                            textTitle = "Show path shade",
+                            value = showPathField
+                        ){
+                            settingsViewModel.updateSettings(it.toString(), SettingsType.SHOW_PATH)
                         }
                         Text(
                             text = "Parameters",
