@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
@@ -156,7 +157,7 @@ fun XYPathComponent(
                     start = pointRespectToOriginPrevious,
                     end = pointRespectToOrigin,
                     strokeWidth = 2.dp.toPx(),
-                    // pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
+                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
                 )
             }
         }

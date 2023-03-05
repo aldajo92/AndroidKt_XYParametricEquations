@@ -78,7 +78,7 @@ fun Activity.showSettingsBottomSheet(
                                 )
                             }",
                             startValue = defaultCircleSize,
-                            range = 1f..40f,
+                            range = 0.1f..40f,
                             selection = currentCircleSize
                         ) {
                             circleSizeChange(it)
