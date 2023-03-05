@@ -136,8 +136,14 @@ fun XYAxisBoard(
         divisionPosition = 0f
         var j = 0
         var xStepPositive: Float
+
+        // TODO: Try to find a better formula
+        val linesToShow: Int = (width / (2 * pixelsPerUnits)).let {
+            if (it < 50) 1 else (it / (25)).toInt()
+        }
+
         while (abs(divisionPosition) <= width - pointOrigin.x) {
-            divisionPosition = j * pixelsPerUnits
+            divisionPosition = j * pixelsPerUnits * linesToShow
             xStepPositive = pointOrigin.x + divisionPosition
             drawLine(
                 color = colorAxisX,
@@ -148,7 +154,7 @@ fun XYAxisBoard(
             if (j % 5 == 0 && j > 0) {
                 drawContext.canvas.nativeCanvas.apply {
                     drawText(
-                        j.toString(),
+                        (j * linesToShow).toString(),
                         xStepPositive,
                         pointOrigin.y + divisionLength + textSizePixels,
                         textPaintX
@@ -162,7 +168,7 @@ fun XYAxisBoard(
         j = 0
         var xStepNegative: Float
         while (abs(divisionPosition) <= pointOrigin.x) {
-            divisionPosition = j * pixelsPerUnits
+            divisionPosition = j * pixelsPerUnits * linesToShow
             xStepNegative = pointOrigin.x - divisionPosition
             drawLine(
                 color = colorAxisX,
@@ -173,7 +179,7 @@ fun XYAxisBoard(
             if (j % 5 == 0 && j > 0) {
                 drawContext.canvas.nativeCanvas.apply {
                     drawText(
-                        (-j).toString(),
+                        (-j * linesToShow).toString(),
                         xStepNegative - (textSizePixels / 7f),
                         pointOrigin.y + divisionLength + textSizePixels,
                         textPaintX
@@ -189,7 +195,7 @@ fun XYAxisBoard(
         while (
             abs(divisionPosition) <= pointOrigin.y
         ) {
-            divisionPosition = i * pixelsPerUnits
+            divisionPosition = i * pixelsPerUnits * linesToShow
             yStepPositive = pointOrigin.y - divisionPosition
             drawLine(
                 color = colorAxisY,
@@ -200,7 +206,7 @@ fun XYAxisBoard(
             if (i % 5 == 0 && i > 0) {
                 drawContext.canvas.nativeCanvas.apply {
                     drawText(
-                        i.toString(),
+                        (i * linesToShow).toString(),
                         pointOrigin.x - divisionLength,
                         yStepPositive + 10f,
                         textPaintY
@@ -216,7 +222,7 @@ fun XYAxisBoard(
         while (
             abs(divisionPosition) <= height - pointOrigin.y
         ) {
-            divisionPosition = i * pixelsPerUnits
+            divisionPosition = i * pixelsPerUnits * linesToShow
             yStepNegative = pointOrigin.y + divisionPosition
             drawLine(
                 color = colorAxisY,
@@ -227,7 +233,7 @@ fun XYAxisBoard(
             if (i % 5 == 0 && i > 0) {
                 drawContext.canvas.nativeCanvas.apply {
                     drawText(
-                        (-i).toString(),
+                        (-i * linesToShow).toString(),
                         pointOrigin.x - divisionLength,
                         yStepNegative + 10f,
                         textPaintY
