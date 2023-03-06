@@ -119,7 +119,8 @@ class MainActivity : ComponentActivity() {
                             tParameter = tParameter,
                             offsetOrigin = offsetOrigin,
                             isDragEnabled = true,
-                            showPath = showPath && isRunning && tParameter > tParameterPrevious, // TODO: Improve this
+                            // TODO: Use another variable to show path, and other to reset
+                            showPath = showPath && isRunning && tParameter > tParameterPrevious,
                             onOffsetChange = { offsetChange ->
                                 offsetOrigin += offsetChange
                             },
