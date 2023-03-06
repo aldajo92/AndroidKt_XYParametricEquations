@@ -84,7 +84,6 @@ fun InputNumberField(
     OutlinedTextField(
         modifier = modifier
             .defaultMinSize(minHeight = 12.dp)
-            .fillMaxWidth()
             .bringIntoViewRequester(bringIntoViewRequester)
             .onFocusEvent { focusState ->
                 if (focusState.isFocused) {

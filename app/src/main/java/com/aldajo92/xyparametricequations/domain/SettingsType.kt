@@ -5,5 +5,6 @@ enum class SettingsType {
     MAX_T,
     TIME_DURATION,
     SHOW_PATH,
+    PATH_POINTS,
     ALL_SETTINGS
 }

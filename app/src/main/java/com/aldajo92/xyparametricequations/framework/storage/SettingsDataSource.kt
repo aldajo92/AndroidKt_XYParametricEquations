@@ -17,6 +17,7 @@ class SettingsDataSource(private val context: Context) : DataSourceFlow<Settings
 
     private val jsonAdapter = Moshi
         .Builder()
+        .add(NullToEmptyStringAdapter())
         .add(KotlinJsonAdapterFactory())
         .build()
         .adapter(SettingsAnimation::class.java)
