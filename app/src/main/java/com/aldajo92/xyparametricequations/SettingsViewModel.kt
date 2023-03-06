@@ -28,8 +28,8 @@ class SettingsViewModel @Inject constructor(
     private val _timeField = MutableStateFlow(SettingsUIField("5000"))
     val timeField: StateFlow<SettingsUIField> = _timeField
 
-    private val _showPath = MutableStateFlow(true)
-    val showPath: StateFlow<Boolean> = _showPath
+    private val _pathField = MutableStateFlow(SettingsUIField(value = "20", enabled = true))
+    val showPath: StateFlow<SettingsUIField> = _pathField
 
     init {
         viewModelScope.launch {
@@ -37,7 +37,7 @@ class SettingsViewModel @Inject constructor(
                 _minField.value = SettingsUIField(it.tMin.toString())
                 _maxField.value = SettingsUIField(it.tMax.toString())
                 _timeField.value = SettingsUIField(it.timeDurationMillis.toString())
-                _showPath.value = it.showPath
+                // _pathField.value = SettingsUIField(value = "20", enabled = it.showPath)
             }
         }
     }
@@ -55,40 +55,54 @@ class SettingsViewModel @Inject constructor(
         !containsErrors && (!tMinEquals || !tMaxEquals || !timeFieldEquals)
     }
 
-    fun updateSettings(it: String, settingsType: SettingsType) {
+    fun updateSettings(value: String, settingsType: SettingsType) {
         when (settingsType) {
             SettingsType.MIN_T -> {
-                val min = it.toFloatOrNull()
+                val min = value.toFloatOrNull()
                 val max = _maxField.value.value.toFloatOrNull() ?: Float.MAX_VALUE
                 val showError = min == null || min >= max
                 _minField.value = SettingsUIField(
-                    value = it,
+                    value = value,
                     showError = showError,
                     errorMessage = if (showError) "Invalid number" else ""
                 )
             }
             SettingsType.MAX_T -> {
                 val min = _minField.value.value.toFloatOrNull() ?: Float.MIN_VALUE
-                val max = it.toFloatOrNull()
+                val max = value.toFloatOrNull()
                 val showError = max == null || max <= min
                 _maxField.value = SettingsUIField(
-                    value = it,
+                    value = value,
                     showError = showError,
                     errorMessage = if (showError) "Invalid number" else ""
                 )
             }
             SettingsType.TIME_DURATION -> {
-                val time = it.toIntOrNull()
+                val time = value.toIntOrNull()
                 val showError = time == null || time < 100
                 _timeField.value = SettingsUIField(
-                    value = it,
+                    value = value,
                     showError = showError,
                     errorMessage = if (showError) "Invalid time" else ""
                 )
             }
             SettingsType.SHOW_PATH -> {
-                val time = it.toBooleanStrictOrNull()
-                _showPath.value = time == true
+                val showPath = value.toBooleanStrictOrNull() == true
+                _pathField.value = _pathField.value.copy(enabled = showPath)
+                viewModelScope.launch {
+                    // TODO: Temporal solution: Repository should save fields with a key
+                    val settingsAnimation = getSettingsAnimationCurrentValues()
+                    settingsRepository.saveData(SettingsType.ALL_SETTINGS, settingsAnimation)
+                }
+            }
+            SettingsType.PATH_POINTS -> {
+                val pathPoints = value.toIntOrNull()
+                val showError = pathPoints == null || pathPoints < 1
+                _pathField.value = _pathField.value.copy(
+                    value = pathPoints?.toString() ?: "",
+                    showError = showError,
+                    errorMessage = if (showError) "Invalid number" else ""
+                )
                 viewModelScope.launch {
                     // TODO: Temporal solution: Repository should save fields with a key
                     val settingsAnimation = getSettingsAnimationCurrentValues()
@@ -106,15 +120,18 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    private fun getSettingsAnimationCurrentValues() : SettingsAnimation{
+    private fun getSettingsAnimationCurrentValues(): SettingsAnimation {
         val min = _minField.value.value.toFloatOrNull() ?: Float.MIN_VALUE
         val max = _maxField.value.value.toFloatOrNull() ?: Float.MAX_VALUE
         val time = _timeField.value.value.toIntOrNull() ?: 5000
+        val pathPoints = _pathField.value.value
+        val showPath = _pathField.value.enabled
         return SettingsAnimation(
             tMin = min,
             tMax = max,
             timeDurationMillis = time,
-            showPath = _showPath.value
+            pathPoints = pathPoints.toIntOrNull() ?: 0,
+            showPath = showPath
         )
     }
 }
@@ -122,7 +139,8 @@ class SettingsViewModel @Inject constructor(
 data class SettingsUIField(
     var value: String,
     var showError: Boolean = false,
-    var errorMessage: String = ""
+    var errorMessage: String = "",
+    var enabled: Boolean = true
 )
 
 fun SettingsAnimation.getRangeForTParameter() = tMin..tMax

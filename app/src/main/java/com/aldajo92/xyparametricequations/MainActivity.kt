@@ -54,6 +54,13 @@ import dagger.hilt.android.AndroidEntryPoint
 * Add animation for t parameter. (Done).
 * Add time duration for animation. (Done)
 * Show path when t parameter increases. (Done)
+* Done button on settings bottom sheet.
+* Modify max path points in settings.
+* Save circle size in settings.
+* Allow to show circle size.
+* Add button to just center the origin.
+* Show dotted path or solid path.
+* Handle SettingsAnimation model new parameters, to avoid crashes.
 * Enable, disable vector for point.
 *  */
 
@@ -87,7 +94,7 @@ class MainActivity : ComponentActivity() {
                     val tParameterEnd = settings.tMax
                     val timeDurationMillis = settings.timeDurationMillis
                     val showPath = settings.showPath
-
+                    val maxPathPoints = settings.pathPoints
 
                     // Animation ////////////////////////////////////////////////////////////////////////////
                     val isRunning by viewModel.isRunningStateFlow.collectAsStateWithLifecycle()
@@ -121,6 +128,7 @@ class MainActivity : ComponentActivity() {
                             isDragEnabled = true,
                             // TODO: Use another variable to show path, and other to reset
                             showPath = showPath && isRunning && tParameter > tParameterPrevious,
+                            maxPathPoints = maxPathPoints,
                             onOffsetChange = { offsetChange ->
                                 offsetOrigin += offsetChange
                             },

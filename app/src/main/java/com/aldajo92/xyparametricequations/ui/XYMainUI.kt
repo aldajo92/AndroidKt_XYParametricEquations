@@ -41,6 +41,7 @@ fun XYMainUI(
     isDragEnabled: Boolean = true,
     offsetOrigin: Offset = Offset.Zero,
     showPath: Boolean = false,
+    maxPathPoints: Int = 20,
     onOffsetChange: (Offset) -> Unit = {},
     onZoomChange: (Float) -> Unit = {},
     evaluateCircleInParametricEquation: (Float) -> Point = { Point(it, it) }
@@ -105,7 +106,8 @@ fun XYMainUI(
             pointOrigin = defaultOrigin,
             pixelsPerUnits = pixelsPerUnits,
             newPoint = currentCirclePoint,
-            showPath = showPath
+            showPath = showPath,
+            maxPathPoints = maxPathPoints
         )
         topContent?.let { it() }
     }
@@ -119,6 +121,7 @@ fun XYPathComponent(
     pointOrigin: Offset,
     pixelsPerUnits: Float,
     showPath: Boolean = false,
+    maxPathPoints: Int = 20,
     newPoint: Point? = null,
 ) {
     val pointsOffsetWithoutTranslation = remember { mutableListOf<Point>() }
@@ -138,7 +141,7 @@ fun XYPathComponent(
             pointsOffsetWithoutTranslation.clear()
         }
 
-        if (pointsOffsetWithoutTranslation.size > 20) {
+        if (pointsOffsetWithoutTranslation.size > maxPathPoints) {
             pointsOffsetWithoutTranslation.removeAt(0)
         }
     }
@@ -157,7 +160,7 @@ fun XYPathComponent(
                     start = pointRespectToOriginPrevious,
                     end = pointRespectToOrigin,
                     strokeWidth = 2.dp.toPx(),
-                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
                 )
             }
         }

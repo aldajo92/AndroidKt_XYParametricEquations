@@ -3,16 +3,22 @@ package com.aldajo92.xyparametricequations.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.aldajo92.xyparametricequations.SettingsUIField
 
 @Preview
 @Composable
@@ -42,25 +48,39 @@ fun SettingsComponentSlider(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Preview
 @Composable
-fun SettingsComponentToggle(
+fun SettingsComponentSwitch(
     modifier: Modifier = Modifier,
     textTitle: String = "No title",
-    value: Boolean = true,
-    onValueChange: (Boolean) -> Unit = {}
+    settingsUIField: SettingsUIField = SettingsUIField("20"),
+    keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
+    onEnableChanged: (Boolean) -> Unit = {},
+    onValueChange: (String) -> Unit = {}
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             modifier = Modifier.align(Alignment.CenterVertically),
             text = textTitle
         )
+        InputNumberField(
+            modifier = Modifier.weight(1f),
+            textTitle = "Points:",
+            textValue = settingsUIField.value,
+            showError = settingsUIField.showError,
+            errorMessage = settingsUIField.errorMessage,
+            keyboardController = keyboardController,
+            onValueChange = onValueChange
+        )
+        Spacer(modifier = Modifier.weight(1f))
         Switch(
-            modifier = Modifier,
-            checked = value, onCheckedChange = onValueChange,
+            modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
+            checked = settingsUIField.enabled,
+            onCheckedChange = onEnableChanged,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colors.primary,
                 checkedTrackColor = MaterialTheme.colors.secondaryVariant,
