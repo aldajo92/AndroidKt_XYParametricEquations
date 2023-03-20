@@ -3,7 +3,6 @@ package com.aldajo92.xyparametricequations._di
 import android.content.Context
 import com.aldajo92.xyparametricequations.datasource.DataSourceFlow
 import com.aldajo92.xyparametricequations.domain.SettingsAnimation
-import com.aldajo92.xyparametricequations.framework.storage.NullToEmptyStringAdapter
 import com.aldajo92.xyparametricequations.framework.storage.SettingsDataSource
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -24,7 +23,6 @@ object DatasourceModule {
     fun provideMoshiBuild(): Moshi = Moshi
         .Builder()
         .add(KotlinJsonAdapterFactory())
-        .add(NullToEmptyStringAdapter())
         .build()
 
     @Provides
