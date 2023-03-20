@@ -44,7 +44,6 @@ import com.aldajo92.xyparametricequations.ui.showSettingsBottomSheet
 import com.aldajo92.xyparametricequations.ui.theme.XYParametricEquationsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
-
 /* TODO:
 * Support DarkMode (Done)
 * Add resolution for x, y steps in the plane (Done)
@@ -90,11 +89,11 @@ class MainActivity : ComponentActivity() {
                         SettingsAnimation()
                     )
 
-                    val tParameterStart = settings.tMin
-                    val tParameterEnd = settings.tMax
-                    val timeDurationMillis = settings.timeDurationMillis
-                    val showPath = settings.showPath
-                    val maxPathPoints = settings.pathPoints
+                    val tParameterStart = settings.tMin ?: 0f
+                    val tParameterEnd = settings.tMax ?: 1f
+                    val timeDurationMillis = settings.timeDurationMillis ?: 1000
+                    val showPath = settings.showPath ?: false
+                    val maxPathPoints = settings.pathPoints ?: 100
 
                     // Animation ////////////////////////////////////////////////////////////////////////////
                     val isRunning by viewModel.isRunningStateFlow.collectAsStateWithLifecycle()

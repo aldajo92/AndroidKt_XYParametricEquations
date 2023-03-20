@@ -143,4 +143,4 @@ data class SettingsUIField(
     var enabled: Boolean = true
 )
 
-fun SettingsAnimation.getRangeForTParameter() = tMin..tMax
+fun SettingsAnimation.getRangeForTParameter() = (tMin ?: 0f)..(tMax ?: 0f)

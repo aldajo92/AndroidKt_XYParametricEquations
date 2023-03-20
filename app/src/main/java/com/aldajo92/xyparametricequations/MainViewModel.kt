@@ -31,8 +31,8 @@ class MainViewModel @Inject constructor(
     val settingsEquationFlow = settingsRepository.getSettingsChangedFlow()
         .map {
             val currentTParameter = _tParameter.value
-            val tMin = it.tMin
-            val tMax = it.tMax
+            val tMin = it.tMin ?: 0f
+            val tMax = it.tMax ?: 0f
             if (currentTParameter < tMin) _tParameter.value = tMin
             else if (currentTParameter > tMax) _tParameter.value = tMax
             it
