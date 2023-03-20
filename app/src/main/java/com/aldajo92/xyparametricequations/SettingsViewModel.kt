@@ -37,7 +37,6 @@ class SettingsViewModel @Inject constructor(
                 _minField.value = SettingsUIField(it.tMin.toString())
                 _maxField.value = SettingsUIField(it.tMax.toString())
                 _timeField.value = SettingsUIField(it.timeDurationMillis.toString())
-                // _pathField.value = SettingsUIField(value = "20", enabled = it.showPath)
             }
         }
     }
