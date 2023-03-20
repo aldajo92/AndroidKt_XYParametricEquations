@@ -42,7 +42,7 @@ fun Activity.showSettingsBottomSheet(
         val tMinValueField by settingsViewModel.minField.collectAsStateWithLifecycle()
         val tMaxValueField by settingsViewModel.maxField.collectAsStateWithLifecycle()
         val timeDurationValueField by settingsViewModel.timeField.collectAsStateWithLifecycle()
-        val showPathField by settingsViewModel.showPath.collectAsStateWithLifecycle()
+        val pathField by settingsViewModel.showPath.collectAsStateWithLifecycle()
 
         val enableButtonState by settingsViewModel.enableButtonStateFlow.collectAsStateWithLifecycle(
             false
@@ -52,6 +52,7 @@ fun Activity.showSettingsBottomSheet(
             Surface(
                 color = Color.Transparent
             ) {
+                val keyboardController = LocalSoftwareKeyboardController.current
                 Card(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -84,12 +85,22 @@ fun Activity.showSettingsBottomSheet(
                             circleSizeChange(it)
                             currentCircleSize = it
                         }
-                        SettingsComponentToggle(
+                        SettingsComponentSwitch(
                             textTitle = "Show path shade",
-                            value = showPathField
-                        ){
-                            settingsViewModel.updateSettings(it.toString(), SettingsType.SHOW_PATH)
-                        }
+                            settingsUIField = pathField,
+                            onEnableChanged = {
+                                settingsViewModel.updateSettings(
+                                    it.toString(),
+                                    SettingsType.SHOW_PATH
+                                )
+                            },
+                            onValueChange = {
+                                settingsViewModel.updateSettings(
+                                    it,
+                                    SettingsType.PATH_POINTS
+                                )
+                            }
+                        )
                         Text(
                             text = "Parameters",
                             modifier = Modifier
@@ -98,7 +109,6 @@ fun Activity.showSettingsBottomSheet(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            val keyboardController = LocalSoftwareKeyboardController.current
                             InputNumberField(
                                 modifier = Modifier
                                     .weight(1f),
