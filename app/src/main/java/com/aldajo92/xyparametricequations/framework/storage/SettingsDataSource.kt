@@ -13,14 +13,12 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class SettingsDataSource(private val context: Context) : DataSourceFlow<SettingsAnimation> {
+class SettingsDataSource(
+    private val context: Context,
+    private val moshiBuild : Moshi
+) : DataSourceFlow<SettingsAnimation> {
 
-    private val jsonAdapter = Moshi
-        .Builder()
-        .add(NullToEmptyStringAdapter())
-        .add(KotlinJsonAdapterFactory())
-        .build()
-        .adapter(SettingsAnimation::class.java)
+    private val jsonAdapter = moshiBuild.adapter(SettingsAnimation::class.java)
 
     private val settingDataFlow: Flow<SettingsAnimation> =
         context.dataStore.data.map { preferences ->
