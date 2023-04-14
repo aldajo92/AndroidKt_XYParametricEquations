@@ -26,11 +26,9 @@ enum class FunctionalOperators(val func: String) {
     logx("log"),
     sqrt("sqrt("),
     exp("exp(")
-
 }
 
 infix fun <T> String.isIn(operators: Array<T>): Boolean {
-
     for (operator in operators) {
         if (operator is NormalOperators) {
             if (this == operator.sign) {

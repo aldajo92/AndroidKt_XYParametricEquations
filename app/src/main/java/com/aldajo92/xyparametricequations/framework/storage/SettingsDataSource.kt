@@ -9,7 +9,6 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.aldajo92.xyparametricequations.datasource.DataSourceFlow
 import com.aldajo92.xyparametricequations.domain.SettingsAnimation
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

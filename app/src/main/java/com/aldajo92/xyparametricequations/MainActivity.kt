@@ -135,7 +135,7 @@ class MainActivity : ComponentActivity() {
                                 minUnitsAxisScreen /= zoomChange
                             },
                             evaluateCircleInParametricEquation = {
-                                viewModel.evaluateInEquation(it)
+                                viewModel.evaluateInEquations(it)
                             },
                             topContent = {
                                 TopContent(
@@ -157,11 +157,11 @@ class MainActivity : ComponentActivity() {
                                 .background(MaterialTheme.colors.background),
                             onSettingsClicked = {
                                 showSettingsBottomSheet(
-                                    settingsViewModel,
+//                                    settingsViewModel,
                                     circleSizeChange = {
                                         circleSizeUnits = it
                                     },
-                                    defaultCircleSize = circleSizeUnits
+//                                    defaultCircleSize = circleSizeUnits
                                 )
                             },
                             sliderChange = {

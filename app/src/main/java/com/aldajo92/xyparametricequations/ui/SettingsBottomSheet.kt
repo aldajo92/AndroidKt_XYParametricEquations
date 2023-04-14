@@ -13,9 +13,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -24,20 +21,19 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aldajo92.xyparametricequations.SettingsViewModel
 import com.aldajo92.xyparametricequations.domain.SettingsType
 import com.aldajo92.xyparametricequations.ui.theme.XYParametricEquationsTheme
 
-
 @OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalComposeUiApi::class)
 fun Activity.showSettingsBottomSheet(
-    settingsViewModel: SettingsViewModel,
     circleSizeChange: (Float) -> Unit = {},
-    defaultCircleSize: Float = 40f,
 ) {
     this.showAsBottomSheet { dismissDialog ->
+        val settingsViewModel = viewModel(SettingsViewModel::class.java)
         // TODO: Consider using a ViewModel for this
-        var currentCircleSize by remember { mutableStateOf(defaultCircleSize) }
+        val currentCircleSize by settingsViewModel.circleSizeField
 
         val tMinValueField by settingsViewModel.minField.collectAsStateWithLifecycle()
         val tMaxValueField by settingsViewModel.maxField.collectAsStateWithLifecycle()
@@ -78,12 +74,12 @@ fun Activity.showSettingsBottomSheet(
                                     currentCircleSize
                                 )
                             }",
-                            startValue = defaultCircleSize,
+                            startValue = currentCircleSize,
                             range = 0.1f..40f,
                             selection = currentCircleSize
                         ) {
+                            settingsViewModel.updateCircleSize(it)
                             circleSizeChange(it)
-                            currentCircleSize = it
                         }
                         SettingsComponentSwitch(
                             textTitle = "Show path shade",
