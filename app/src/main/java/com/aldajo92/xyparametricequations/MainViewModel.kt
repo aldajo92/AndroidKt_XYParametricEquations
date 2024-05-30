@@ -44,7 +44,7 @@ class MainViewModel @Inject constructor(
     private val _equationYUIStateFlow = MutableStateFlow(EquationUIState("t*sin(t)"))
     val equationYUIStateFlow: StateFlow<EquationUIState> = _equationYUIStateFlow
 
-    fun evaluateInEquation(t: Float): Point {
+    fun evaluateInEquations(t: Float): Point {
         val valueX = evaluate(t, _equationXUIStateFlow.value.equationString)
         val valueY = evaluate(t, _equationYUIStateFlow.value.equationString)
         return Point(valueX, valueY)

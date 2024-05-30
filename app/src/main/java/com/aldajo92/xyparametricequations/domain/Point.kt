@@ -2,7 +2,10 @@ package com.aldajo92.xyparametricequations.domain
 
 import androidx.compose.ui.geometry.Offset
 
-data class Point(val x: Float = 0f, val y: Float = 0f) {
+data class Point(
+    val x: Float = 0f,
+    val y: Float = 0f
+) {
     operator fun plus(point: Point) = Point(x + point.x, y + point.y)
     operator fun minus(point: Point) = Point(x - point.x, y - point.y)
     operator fun times(value: Float) = Point(x * value, y * value)

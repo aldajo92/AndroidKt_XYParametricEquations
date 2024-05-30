@@ -1,5 +1,7 @@
 package com.aldajo92.xyparametricequations
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aldajo92.xyparametricequations.domain.SettingsAnimation
@@ -18,6 +20,9 @@ class SettingsViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val settingsEquationUIStateFlow = settingsRepository.getSettingsChangedFlow()
+
+    private val _circleSizeField = mutableStateOf(1.75f)
+    val circleSizeField: State<Float> = _circleSizeField
 
     private val _minField = MutableStateFlow(SettingsUIField("-10"))
     val minField: StateFlow<SettingsUIField> = _minField
@@ -133,8 +138,13 @@ class SettingsViewModel @Inject constructor(
             showPath = showPath
         )
     }
+
+    fun updateCircleSize(currentCircleSize: Float) {
+        _circleSizeField.value = currentCircleSize
+    }
 }
 
+// TODO: Use Generics
 data class SettingsUIField(
     var value: String,
     var showError: Boolean = false,

@@ -11,26 +11,24 @@ enum class NormalOperators(val sign: String, val precedence: Int) {
 }
 
 enum class FunctionalOperators(val func: String) {
-    sin("sin("),
-    cos("cos("),
-    tan("tan("),
-    asin("asin("),
-    acos("acos("),
-    atan("atan("),
-    sinh("sinh("),
-    cosh("cosh("),
-    tanh("tanh("),
-    log2("log2("),
-    log10("log10("),
-    ln("ln("),
-    logx("log"),
-    sqrt("sqrt("),
-    exp("exp(")
-
+    SIN("sin("),
+    COS("cos("),
+    TAN("tan("),
+    ASIN("asin("),
+    ACOS("acos("),
+    ATAN("atan("),
+    SINH("sinh("),
+    COSH("cosh("),
+    TANH("tanh("),
+    LOG2("log2("),
+    LOG10("log10("),
+    LN("ln("),
+    LOGX("log"),
+    SQRT("sqrt("),
+    EXP("exp(")
 }
 
 infix fun <T> String.isIn(operators: Array<T>): Boolean {
-
     for (operator in operators) {
         if (operator is NormalOperators) {
             if (this == operator.sign) {
@@ -39,7 +37,7 @@ infix fun <T> String.isIn(operators: Array<T>): Boolean {
         } else if (operator is FunctionalOperators) {
             if (this.contains(operator.func)) {
                 return true
-            } else if (this.contains(FunctionalOperators.logx.func)) {
+            } else if (this.contains(FunctionalOperators.LOGX.func)) {
                 return true
             }
         }

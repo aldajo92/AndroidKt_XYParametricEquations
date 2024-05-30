@@ -206,7 +206,7 @@ class ExpressionParser {
             if ((index + funLength < expression.length) &&
                 expression.substring(index, index + funLength) == func.func
             ) {
-                if (func != FunctionalOperators.logx) {
+                if (func != FunctionalOperators.LOGX) {
                     opStack.push(func.func)
                     return funLength
                 } else {
@@ -264,7 +264,6 @@ class ExpressionParser {
         } else if (!numStack.isEmpty() || currOp == NormalOperators.UNARY.sign) {
             opStack.push(currOp)
         }
-
     }
 
     private fun getBinaryOperatorPrecedence(currOp: String): Int {
@@ -300,73 +299,73 @@ class ExpressionParser {
         var num = numStack.pop()
 
         when (func) {
-            FunctionalOperators.sin.func -> {
+            FunctionalOperators.SIN.func -> {
                 if (isDegrees) {
                     num = (num * PI) / 180
                 }
                 numStack.push(sin(num))
             }
-            FunctionalOperators.cos.func -> {
+            FunctionalOperators.COS.func -> {
                 if (isDegrees) {
                     num = (num * PI) / 180
                 }
                 numStack.push(cos(num))
             }
-            FunctionalOperators.tan.func -> {
+            FunctionalOperators.TAN.func -> {
                 if (isDegrees) {
                     num = (num * PI) / 180
                 }
                 numStack.push(tan(num))
             }
-            FunctionalOperators.asin.func -> {
+            FunctionalOperators.ASIN.func -> {
                 if (isDegrees) {
                     num = (num * PI) / 180
                 }
                 numStack.push(asin(num))
             }
-            FunctionalOperators.acos.func -> {
+            FunctionalOperators.ACOS.func -> {
                 if (isDegrees) {
                     num = (num * PI) / 180
                 }
                 numStack.push(acos(num))
             }
-            FunctionalOperators.atan.func -> {
+            FunctionalOperators.ATAN.func -> {
                 if (isDegrees) {
                     num = (num * PI) / 180
                 }
                 numStack.push(atan(num))
             }
-            FunctionalOperators.sinh.func -> {
+            FunctionalOperators.SINH.func -> {
                 if (isDegrees) {
                     num = (num * PI) / 180
                 }
                 numStack.push(sinh(num))
             }
-            FunctionalOperators.cosh.func -> {
+            FunctionalOperators.COSH.func -> {
                 if (isDegrees) {
                     num = (num * PI) / 180
                 }
                 numStack.push(cosh(num))
             }
-            FunctionalOperators.tanh.func -> {
+            FunctionalOperators.TANH.func -> {
                 if (isDegrees) {
                     num = (num * PI) / 180
                 }
                 numStack.push(tanh(num))
             }
-            FunctionalOperators.sqrt.func -> {
+            FunctionalOperators.SQRT.func -> {
                 if (num < 0) {
                     clearStacks()
                     throw ImaginaryException()
                 }
                 numStack.push(sqrt(num))
             }
-            FunctionalOperators.exp.func -> numStack.push(exp(num))
-            FunctionalOperators.ln.func -> numStack.push(ln(num))
-            FunctionalOperators.log2.func -> numStack.push(log2(num))
-            FunctionalOperators.log10.func -> numStack.push(log10(num))
+            FunctionalOperators.EXP.func -> numStack.push(exp(num))
+            FunctionalOperators.LN.func -> numStack.push(ln(num))
+            FunctionalOperators.LOG2.func -> numStack.push(log2(num))
+            FunctionalOperators.LOG10.func -> numStack.push(log10(num))
             else -> {
-                if (func.contains(FunctionalOperators.logx.func)) {
+                if (func.contains(FunctionalOperators.LOGX.func)) {
                     val base = func.substring(3, func.lastIndex).toDouble()
                     numStack.push(log(num, base))
                 }
