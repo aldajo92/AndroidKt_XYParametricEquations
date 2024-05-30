@@ -14,19 +14,17 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aldajo92.xyparametricequations.SettingsViewModel
 import com.aldajo92.xyparametricequations.domain.SettingsType
 import com.aldajo92.xyparametricequations.ui.theme.XYParametricEquationsTheme
 
-@OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalComposeUiApi::class)
 fun Activity.showSettingsBottomSheet(
     circleSizeChange: (Float) -> Unit = {},
 ) {
@@ -35,13 +33,14 @@ fun Activity.showSettingsBottomSheet(
         // TODO: Consider using a ViewModel for this
         val currentCircleSize by settingsViewModel.circleSizeField
 
-        val tMinValueField by settingsViewModel.minField.collectAsStateWithLifecycle()
-        val tMaxValueField by settingsViewModel.maxField.collectAsStateWithLifecycle()
-        val timeDurationValueField by settingsViewModel.timeField.collectAsStateWithLifecycle()
-        val pathField by settingsViewModel.showPath.collectAsStateWithLifecycle()
+        val tMinValueField by settingsViewModel.minField.collectAsStateWithLifecycle(lifecycleOwner = LocalLifecycleOwner.current)
+        val tMaxValueField by settingsViewModel.maxField.collectAsStateWithLifecycle(lifecycleOwner = LocalLifecycleOwner.current)
+        val timeDurationValueField by settingsViewModel.timeField.collectAsStateWithLifecycle(lifecycleOwner = LocalLifecycleOwner.current)
+        val pathField by settingsViewModel.showPath.collectAsStateWithLifecycle(lifecycleOwner = LocalLifecycleOwner.current)
 
         val enableButtonState by settingsViewModel.enableButtonStateFlow.collectAsStateWithLifecycle(
-            false
+            false,
+            lifecycleOwner = LocalLifecycleOwner.current
         )
 
         XYParametricEquationsTheme {

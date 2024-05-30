@@ -3,6 +3,7 @@ package com.aldajo92.xyparametricequations
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.InfiniteRepeatableSpec
@@ -17,7 +18,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -25,6 +28,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,9 +36,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aldajo92.xyparametricequations.domain.SettingsAnimation
 import com.aldajo92.xyparametricequations.ui.InputEquationsRow
@@ -69,24 +73,30 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
 
-    @OptIn(ExperimentalLifecycleComposeApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
         setContent {
             XYParametricEquationsTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    var minUnitsAxisScreen by remember { mutableStateOf(50f) } // TODO: Remove this
-                    var circleSizeUnits by remember { mutableStateOf(1.75f) }
+                    var minUnitsAxisScreen by remember { mutableFloatStateOf(50f) } // TODO: Remove this
+                    var circleSizeUnits by remember { mutableFloatStateOf(1.75f) }
                     var offsetOrigin by remember { mutableStateOf(Offset.Zero) }
 
-                    val tParameter by viewModel.tParameterStateFlow.collectAsStateWithLifecycle()
-                    val tParameterPrevious by viewModel.tParameterPreviousStateFlow.collectAsStateWithLifecycle()
+                    val tParameter by viewModel.tParameterStateFlow.collectAsStateWithLifecycle(
+                        lifecycleOwner = LocalLifecycleOwner.current
+                    )
+                    val tParameterPrevious by viewModel.tParameterPreviousStateFlow.collectAsStateWithLifecycle(
+                        lifecycleOwner = LocalLifecycleOwner.current
+                    )
 
                     val settings by viewModel.settingsEquationFlow.collectAsStateWithLifecycle(
-                        SettingsAnimation()
+                        SettingsAnimation(),
+                        lifecycleOwner = LocalLifecycleOwner.current
                     )
 
                     val tParameterStart = settings.tMin ?: 0f
@@ -96,7 +106,9 @@ class MainActivity : ComponentActivity() {
                     val maxPathPoints = settings.pathPoints ?: 100
 
                     // Animation ////////////////////////////////////////////////////////////////////////////
-                    val isRunning by viewModel.isRunningStateFlow.collectAsStateWithLifecycle()
+                    val isRunning by viewModel.isRunningStateFlow.collectAsStateWithLifecycle(
+                        lifecycleOwner = LocalLifecycleOwner.current
+                    )
 
                     val tAnimation = remember { Animatable(tParameterStart, Float.VectorConverter) }
                     val animationSpec = remember {
@@ -117,9 +129,13 @@ class MainActivity : ComponentActivity() {
                     }
                     // End Animation //////////////////////////////////////////////////////////////////////
 
-                    Column(modifier = Modifier.fillMaxSize()) {
+                    Column(modifier = Modifier
+                        .fillMaxSize()
+                        .navigationBarsPadding()) {
                         XYMainUI(
-                            modifier = Modifier.fillMaxWidth().weight(1f),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
                             minUnitsAxisScreen = minUnitsAxisScreen,
                             circleSizeInUnits = circleSizeUnits,
                             tParameter = tParameter,
@@ -188,7 +204,6 @@ class MainActivity : ComponentActivity() {
         viewModel.setIsRunning(false)
     }
 
-    @OptIn(ExperimentalLifecycleComposeApi::class)
     @Composable
     fun BottomInputEquations(
         modifier: Modifier = Modifier,
@@ -200,10 +215,12 @@ class MainActivity : ComponentActivity() {
         viewModel: MainViewModel
     ) {
         val equationXUIState by viewModel.equationXUIStateFlow.collectAsStateWithLifecycle(
-            EquationUIState()
+            EquationUIState(),
+            lifecycleOwner = LocalLifecycleOwner.current
         )
         val equationYUIState by viewModel.equationYUIStateFlow.collectAsStateWithLifecycle(
-            EquationUIState()
+            EquationUIState(),
+            lifecycleOwner = LocalLifecycleOwner.current
         )
 
         Column(
@@ -245,14 +262,17 @@ fun BoxScope.TopContent(
     centerButtonClicked: () -> Unit = {}
 ) {
     Text(
-        modifier = Modifier.padding(10.dp),
+        modifier = Modifier
+            .padding(horizontal = 10.dp)
+            .statusBarsPadding(),
         text = "t: ${String.format("%.2f", tParameter)}",
         color = MaterialTheme.colors.onBackground
     )
     Row(
         modifier = Modifier
+            .statusBarsPadding()
             .align(Alignment.TopEnd)
-            .padding(10.dp),
+            .padding(horizontal = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Icon(
