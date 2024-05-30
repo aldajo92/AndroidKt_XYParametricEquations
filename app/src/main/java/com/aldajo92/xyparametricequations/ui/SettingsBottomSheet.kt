@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -35,7 +36,9 @@ fun Activity.showSettingsBottomSheet(
 
         val tMinValueField by settingsViewModel.minField.collectAsStateWithLifecycle(lifecycleOwner = LocalLifecycleOwner.current)
         val tMaxValueField by settingsViewModel.maxField.collectAsStateWithLifecycle(lifecycleOwner = LocalLifecycleOwner.current)
-        val timeDurationValueField by settingsViewModel.timeField.collectAsStateWithLifecycle(lifecycleOwner = LocalLifecycleOwner.current)
+        val timeDurationValueField by settingsViewModel.timeField.collectAsStateWithLifecycle(
+            lifecycleOwner = LocalLifecycleOwner.current
+        )
         val pathField by settingsViewModel.showPath.collectAsStateWithLifecycle(lifecycleOwner = LocalLifecycleOwner.current)
 
         val enableButtonState by settingsViewModel.enableButtonStateFlow.collectAsStateWithLifecycle(
@@ -57,7 +60,8 @@ fun Activity.showSettingsBottomSheet(
                     Column(
                         Modifier
                             .fillMaxWidth()
-                            .padding(8.dp),
+                            .padding(8.dp)
+                            .navigationBarsPadding(),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Text(
