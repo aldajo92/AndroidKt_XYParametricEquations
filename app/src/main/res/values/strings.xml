@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">XY Parametric Equations</string>
+
+    <string name="settings_remove_animations">Remove Animations</string>
 </resources>
