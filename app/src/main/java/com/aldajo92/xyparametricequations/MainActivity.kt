@@ -1,6 +1,10 @@
 package com.aldajo92.xyparametricequations
 
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,6 +17,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,10 +26,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,7 +48,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aldajo92.xyparametricequations.domain.SettingsAnimation
 import com.aldajo92.xyparametricequations.ui.InputEquationsRow
@@ -86,6 +100,7 @@ class MainActivity : ComponentActivity() {
                     var minUnitsAxisScreen by remember { mutableFloatStateOf(50f) } // TODO: Remove this
                     var circleSizeUnits by remember { mutableFloatStateOf(1.75f) }
                     var offsetOrigin by remember { mutableStateOf(Offset.Zero) }
+                    var dialogState by remember { mutableStateOf(false) }
 
                     val tParameter by viewModel.tParameterStateFlow.collectAsStateWithLifecycle(
                         lifecycleOwner = LocalLifecycleOwner.current
@@ -129,9 +144,11 @@ class MainActivity : ComponentActivity() {
                     }
                     // End Animation //////////////////////////////////////////////////////////////////////
 
-                    Column(modifier = Modifier
-                        .fillMaxSize()
-                        .navigationBarsPadding()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .navigationBarsPadding()
+                    ) {
                         XYMainUI(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -158,7 +175,31 @@ class MainActivity : ComponentActivity() {
                                     tParameter,
                                     isRunning = isRunning,
                                     onPlayClicked = {
-                                        viewModel.setIsRunning(!isRunning)
+                                        val animatorEnabled = try {
+                                            val transitionScale = Settings.Global.getFloat(
+                                                contentResolver,
+                                                Settings.Global.TRANSITION_ANIMATION_SCALE
+                                            )
+                                            val windowScale = Settings.Global.getFloat(
+                                                contentResolver,
+                                                Settings.Global.WINDOW_ANIMATION_SCALE
+                                            )
+                                            val animatorScale = Settings.Global.getFloat(
+                                                contentResolver,
+                                                Settings.Global.ANIMATOR_DURATION_SCALE
+                                            )
+                                            transitionScale == 0f && windowScale == 0f && animatorScale == 0f
+                                        } catch (e: Settings.SettingNotFoundException) {
+                                            false
+                                        }
+
+                                        if (!animatorEnabled) {
+                                            viewModel.setIsRunning(!isRunning)
+                                        }
+
+                                        // Animations Off behaviour
+                                        dialogState = animatorEnabled
+                                        // Animations On behaviour
                                     },
                                     centerButtonClicked = {
                                         offsetOrigin = Offset.Zero
@@ -187,6 +228,29 @@ class MainActivity : ComponentActivity() {
                             tParameter = tParameter,
                             viewModel = viewModel,
                             enableInput = !isRunning
+                        )
+                    }
+
+                    if (dialogState) {
+                        Dialog(
+                            onDismissRequest = { dialogState = false },
+                            content = {
+                                InfoDialogContent(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    dismissDialog = {
+                                        dialogState = false
+                                    },
+                                    openSettingsClicked = {
+                                        openAccessibilitySettings(this)
+                                    }
+                                )
+                            },
+                            properties = DialogProperties(
+                                dismissOnBackPress = false,
+                                dismissOnClickOutside = true
+                            )
                         )
                     }
                 }
@@ -252,6 +316,19 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
+
+    private fun openAccessibilitySettings(context: Context) {
+        val removeAnimationsText = getString(R.string.settings_remove_animations)
+        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Intent(Settings.ACTION_APP_SEARCH_SETTINGS).apply {
+                putExtra("query", removeAnimationsText)
+            }
+        } else {
+            Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+        }
+        context.startActivity(intent)
+    }
+
 }
 
 @Composable
@@ -292,4 +369,49 @@ fun BoxScope.TopContent(
         // TODO Add icon to enable zoom here
     }
 
+}
+
+
+@Preview
+@Composable
+fun InfoDialogContent(
+    modifier: Modifier = Modifier,
+    dismissDialog: () -> Unit = {},
+    openSettingsClicked: () -> Unit = {},
+    content: @Composable () -> Unit = {}
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth(1f),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Icon(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .clickable {
+                            dismissDialog()
+                        },
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = "Close"
+                )
+            }
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = "Please open accessibility settings and disable \"Remove Animations\", then RESTART the app to use this feature."
+            )
+            Button(
+                modifier = Modifier.align(Alignment.End),
+                onClick = openSettingsClicked
+            ) {
+                Text(text = "Open Settings")
+            }
+        }
+    }
 }
