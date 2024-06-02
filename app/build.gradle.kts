@@ -57,16 +57,18 @@ kapt {
 }
 
 dependencies {
+    val coreKtxVersion = "1.13.1"
     val composeUIVersion = "1.6.7"
+    val androidXLifecycleVersion = "2.8.1"
 
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.core:core-ktx:$coreKtxVersion")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$androidXLifecycleVersion")
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation("androidx.compose.ui:ui:$composeUIVersion")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeUIVersion")
     implementation("androidx.compose.material:material:1.6.7")
     implementation("androidx.compose.runtime:runtime-livedata:$composeUIVersion")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:$androidXLifecycleVersion")
     implementation("androidx.compose.material3:material3-android:1.2.1")
 
     // DataStore
@@ -74,7 +76,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
     // Hilt
-    implementation("com.google.dagger:hilt-android:2.48")
+    implementation("com.google.dagger:hilt-android:2.49")
     kapt("com.google.dagger:hilt-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
@@ -83,8 +85,7 @@ dependencies {
     implementation("com.squareup.moshi:moshi-adapters:1.12.0")
 
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeUIVersion")
     debugImplementation("androidx.compose.ui:ui-tooling:$composeUIVersion")
     debugImplementation("androidx.compose.ui:ui-test-manifest:$composeUIVersion")
