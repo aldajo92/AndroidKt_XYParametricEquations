@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -100,6 +101,9 @@ class MainActivity : ComponentActivity() {
                     var circleSizeUnits by remember { mutableFloatStateOf(1.75f) }
                     var offsetOrigin by remember { mutableStateOf(Offset.Zero) }
                     var dialogState by remember { mutableStateOf(false) }
+                    val timeDurationMillis by settingsViewModel.timeField.collectAsStateWithLifecycle(
+                        lifecycleOwner = LocalLifecycleOwner.current
+                    )
 
                     val tParameter by viewModel.tParameterStateFlow.collectAsStateWithLifecycle(
                         lifecycleOwner = LocalLifecycleOwner.current
@@ -115,7 +119,6 @@ class MainActivity : ComponentActivity() {
 
                     val tParameterStart = settings.tMin ?: 0f
                     val tParameterEnd = settings.tMax ?: 1f
-                    val timeDurationMillis = settings.timeDurationMillis ?: 1000
                     val showPath = settings.showPath ?: false
                     val maxPathPoints = settings.pathPoints ?: 100
 
@@ -125,12 +128,10 @@ class MainActivity : ComponentActivity() {
                     )
 
                     val tAnimation = remember { Animatable(tParameterStart, Float.VectorConverter) }
-                    val animationSpec = remember {
-                        InfiniteRepeatableSpec<Float>(
-                            tween(durationMillis = timeDurationMillis, easing = LinearEasing)
-                        )
-                    }
                     LaunchedEffect(isRunning) {
+                        val animationSpec = InfiniteRepeatableSpec<Float>(
+                            tween(durationMillis = timeDurationMillis.value.toInt(), easing = LinearEasing)
+                        )
                         if (isRunning) {
                             tAnimation.snapTo(tParameterStart)
                             tAnimation.animateTo(
