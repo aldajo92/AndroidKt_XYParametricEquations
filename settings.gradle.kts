@@ -14,4 +14,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "XYAnimation"
-include ':app'
+include(":app")
