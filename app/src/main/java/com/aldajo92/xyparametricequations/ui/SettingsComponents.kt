@@ -3,6 +3,7 @@ package com.aldajo92.xyparametricequations.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -70,8 +71,10 @@ fun SettingsComponentSwitch(
             keyboardController = keyboardController,
             onValueChange = onValueChange
         )
+        Spacer(modifier = Modifier.weight(1f))
         Switch(
-            modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
+            modifier = Modifier
+                .align(Alignment.CenterVertically),
             checked = settingsUIField.enabled,
             onCheckedChange = onEnableChanged
         )
