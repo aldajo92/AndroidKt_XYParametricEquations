@@ -1,8 +1,8 @@
 package com.aldajo92.xyparametricequations.ui
 
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Slider
-import androidx.compose.material.SliderDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,7 +26,7 @@ fun SimpleContinuousSlider(
         },
         colors = SliderDefaults.colors(
             activeTrackColor = Color.Transparent,
-            inactiveTrackColor = MaterialTheme.colors.primary.copy(alpha = 0.2f)
+            inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
         )
     )
 }

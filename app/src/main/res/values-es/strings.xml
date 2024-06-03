@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="settings_remove_animations_warning">Por favor, abra la configuración de accesibilidad y desactive la opción "Quitar Animaciones", luego REINICIE la aplicación para usar esta función.</string>
     <string name="settings_remove_animations">Quitar Animaciones</string>
 </resources>
