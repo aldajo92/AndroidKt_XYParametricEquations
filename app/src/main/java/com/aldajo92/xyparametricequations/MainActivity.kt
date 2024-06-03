@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -28,14 +27,14 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,6 +48,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
             XYParametricEquationsTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     var minUnitsAxisScreen by remember { mutableFloatStateOf(50f) } // TODO: Remove this
                     var circleSizeUnits by remember { mutableFloatStateOf(1.75f) }
@@ -130,7 +130,10 @@ class MainActivity : ComponentActivity() {
                     val tAnimation = remember { Animatable(tParameterStart, Float.VectorConverter) }
                     LaunchedEffect(isRunning) {
                         val animationSpec = InfiniteRepeatableSpec<Float>(
-                            tween(durationMillis = timeDurationMillis.value.toInt(), easing = LinearEasing)
+                            tween(
+                                durationMillis = timeDurationMillis.value.toInt(),
+                                easing = LinearEasing
+                            )
                         )
                         if (isRunning) {
                             tAnimation.snapTo(tParameterStart)
@@ -211,7 +214,7 @@ class MainActivity : ComponentActivity() {
                         BottomInputEquations(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(MaterialTheme.colors.background),
+                                .background(MaterialTheme.colorScheme.background),
                             onSettingsClicked = {
                                 showSettingsBottomSheet(
 //                                    settingsViewModel,
@@ -290,7 +293,7 @@ class MainActivity : ComponentActivity() {
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colors.background)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             InputEquationsRow(
                 modifier = Modifier
@@ -343,7 +346,7 @@ fun BoxScope.TopContent(
             .padding(horizontal = 10.dp)
             .statusBarsPadding(),
         text = "t: ${String.format("%.2f", tParameter)}",
-        color = MaterialTheme.colors.onBackground
+        color = MaterialTheme.colorScheme.onBackground
     )
     Row(
         modifier = Modifier
@@ -356,7 +359,7 @@ fun BoxScope.TopContent(
             modifier = Modifier
                 .clickable { centerButtonClicked() },
             painter = painterResource(R.drawable.icon_center_focus),
-            tint = MaterialTheme.colors.onBackground,
+            tint = MaterialTheme.colorScheme.onBackground,
             contentDescription = "Center origin"
         )
         Icon(
@@ -404,7 +407,7 @@ fun InfoDialogContent(
             }
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = "Please open accessibility settings and disable \"Remove Animations\", then RESTART the app to use this feature."
+                text = stringResource(id = R.string.settings_remove_animations_warning),
             )
             Button(
                 modifier = Modifier.align(Alignment.End),

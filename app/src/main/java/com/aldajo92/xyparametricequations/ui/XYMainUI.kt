@@ -8,7 +8,7 @@ import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -85,15 +85,15 @@ fun XYMainUI(
             width = localWidth,
             height = localHeight,
             pixelsPerUnits = pixelsPerUnits,
-            colorAxisX = MaterialTheme.colors.onBackground,
-            colorAxisY = MaterialTheme.colors.onBackground
+            colorAxisX = MaterialTheme.colorScheme.onBackground,
+            colorAxisY = MaterialTheme.colorScheme.onBackground
         )
         XYCircleComponent(
             modifier = Modifier.fillMaxSize(),
             pointOrigin = defaultOrigin,
             pixelsPerUnits = pixelsPerUnits,
             circleColor = Color.Red,
-            lineColor = MaterialTheme.colors.onBackground,
+            lineColor = MaterialTheme.colorScheme.onBackground,
             tParameter = tParameter,
             circleSize = circleSizeInUnits * pixelsPerUnits,
             parametricEquation = evaluateCircleInParametricEquation

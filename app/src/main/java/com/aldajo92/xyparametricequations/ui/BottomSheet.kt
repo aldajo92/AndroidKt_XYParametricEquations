@@ -4,7 +4,11 @@ import android.app.Activity
 import android.util.Log
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
-import androidx.compose.material.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,7 +41,7 @@ private fun addContentToView(
     )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BottomSheetWrapper(
     parent: ViewGroup,
@@ -47,22 +51,22 @@ private fun BottomSheetWrapper(
     val coroutineScope = rememberCoroutineScope()
     val modalBottomSheetState =
         rememberModalBottomSheetState(
-            ModalBottomSheetValue.Hidden,
-            confirmStateChange = {
-                it != ModalBottomSheetValue.HalfExpanded
+            true,
+            confirmValueChange = {
+                it != SheetValue.PartiallyExpanded
             }
         )
     var isSheetOpened by remember { mutableStateOf(false) }
 
-    ModalBottomSheetLayout(
-        sheetBackgroundColor = Color.Transparent,
+    ModalBottomSheet(
+        containerColor = Color.Transparent,
         sheetState = modalBottomSheetState,
-        sheetContent = {
-            content {
-                animateHideBottomSheet(coroutineScope, modalBottomSheetState)
-            }
+        onDismissRequest = {}
+    ) {
+        content {
+            animateHideBottomSheet(coroutineScope, modalBottomSheetState)
         }
-    ) {}
+    }
 
     BackHandler {
         animateHideBottomSheet(coroutineScope, modalBottomSheetState)
@@ -71,7 +75,7 @@ private fun BottomSheetWrapper(
     // Take action based on hidden state
     LaunchedEffect(modalBottomSheetState.currentValue) {
         when (modalBottomSheetState.currentValue) {
-            ModalBottomSheetValue.Hidden -> {
+            SheetValue.Hidden -> {
                 when {
                     isSheetOpened -> parent.removeView(composeView)
                     else -> {
@@ -80,6 +84,7 @@ private fun BottomSheetWrapper(
                     }
                 }
             }
+
             else -> {
                 Log.i(
                     this::class.java.name,
@@ -90,10 +95,11 @@ private fun BottomSheetWrapper(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+
+@OptIn(ExperimentalMaterial3Api::class)
 private fun animateHideBottomSheet(
     coroutineScope: CoroutineScope,
-    modalBottomSheetState: ModalBottomSheetState
+    modalBottomSheetState: SheetState
 ) {
     coroutineScope.launch {
         modalBottomSheetState.hide() // will trigger the LaunchedEffect
