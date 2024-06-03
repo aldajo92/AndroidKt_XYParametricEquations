@@ -374,7 +374,6 @@ fun BoxScope.TopContent(
 
 }
 
-
 @Preview
 @Composable
 fun InfoDialogContent(
