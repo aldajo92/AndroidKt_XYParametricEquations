@@ -63,6 +63,9 @@ import com.aldajo92.xyparametricequations.ui.model.EquationUIState
 import com.aldajo92.xyparametricequations.ui.showListBottomSheet
 import com.aldajo92.xyparametricequations.ui.showSettingsBottomSheet
 import com.aldajo92.xyparametricequations.ui.theme.XYParametricEquationsTheme
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 
@@ -93,6 +96,23 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val appUpdateManager = AppUpdateManagerFactory.create(this)
+
+        // Returns an intent object that you use to check for an update.
+        val appUpdateInfoTask = appUpdateManager.appUpdateInfo
+
+        // Checks that the platform will allow the specified type of update.
+        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                // This example applies an immediate update. To apply a flexible update
+                // instead, pass in AppUpdateType.FLEXIBLE
+//                && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
+            ) {
+                Log.i("UpdateAvailable", "Update available")
+            }
+        }
+
         enableEdgeToEdge()
 
         setContent {
