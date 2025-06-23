@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -58,9 +59,12 @@ import com.aldajo92.xyparametricequations.domain.SettingsAnimation
 import com.aldajo92.xyparametricequations.ui.InputEquationsRow
 import com.aldajo92.xyparametricequations.ui.SliderForTParameter
 import com.aldajo92.xyparametricequations.ui.XYMainUI
+import com.aldajo92.xyparametricequations.ui.model.EquationUIState
+import com.aldajo92.xyparametricequations.ui.showListBottomSheet
 import com.aldajo92.xyparametricequations.ui.showSettingsBottomSheet
 import com.aldajo92.xyparametricequations.ui.theme.XYParametricEquationsTheme
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Locale
 
 /* TODO:
 * Support DarkMode (Done)
@@ -100,7 +104,8 @@ class MainActivity : ComponentActivity() {
                     var minUnitsAxisScreen by remember { mutableFloatStateOf(50f) } // TODO: Remove this
                     var circleSizeUnits by remember { mutableFloatStateOf(1.75f) }
                     var offsetOrigin by remember { mutableStateOf(Offset.Zero) }
-                    var dialogState by remember { mutableStateOf(false) }
+                    var dialogConfigState by remember { mutableStateOf(false) }
+                    var dialogListState by remember { mutableStateOf(false) }
                     val timeDurationMillis by settingsViewModel.timeField.collectAsStateWithLifecycle(
                         lifecycleOwner = LocalLifecycleOwner.current
                     )
@@ -152,65 +157,79 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .navigationBarsPadding()
                     ) {
-                        XYMainUI(
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .weight(1f),
-                            minUnitsAxisScreen = minUnitsAxisScreen,
-                            circleSizeInUnits = circleSizeUnits,
-                            tParameter = tParameter,
-                            offsetOrigin = offsetOrigin,
-                            isDragEnabled = true,
-                            // TODO: Use another variable to show path, and other to reset
-                            showPath = showPath && isRunning && tParameter > tParameterPrevious,
-                            maxPathPoints = maxPathPoints,
-                            onOffsetChange = { offsetChange ->
-                                offsetOrigin += offsetChange
-                            },
-                            onZoomChange = { zoomChange ->
-                                minUnitsAxisScreen /= zoomChange
-                            },
-                            evaluateCircleInParametricEquation = {
-                                viewModel.evaluateInEquations(it)
-                            },
-                            topContent = {
-                                TopContent(
-                                    tParameter,
-                                    isRunning = isRunning,
-                                    onPlayClicked = {
-                                        val animatorEnabled = try {
-                                            val transitionScale = Settings.Global.getFloat(
-                                                contentResolver,
-                                                Settings.Global.TRANSITION_ANIMATION_SCALE
-                                            )
-                                            val windowScale = Settings.Global.getFloat(
-                                                contentResolver,
-                                                Settings.Global.WINDOW_ANIMATION_SCALE
-                                            )
-                                            val animatorScale = Settings.Global.getFloat(
-                                                contentResolver,
-                                                Settings.Global.ANIMATOR_DURATION_SCALE
-                                            )
-                                            transitionScale == 0f && windowScale == 0f && animatorScale == 0f
-                                        } catch (e: Settings.SettingNotFoundException) {
-                                            false
-                                        }
+                                .weight(1f)
+                        ) {
+                            XYMainUI(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                minUnitsAxisScreen = minUnitsAxisScreen,
+                                circleSizeInUnits = circleSizeUnits,
+                                tParameter = tParameter,
+                                offsetOrigin = offsetOrigin,
+                                isDragEnabled = true,
+                                // TODO: Use another variable to show path, and other to reset
+                                showPath = showPath && isRunning && tParameter > tParameterPrevious,
+                                maxPathPoints = maxPathPoints,
+                                onOffsetChange = { offsetChange ->
+                                    offsetOrigin += offsetChange
+                                },
+                                onZoomChange = { zoomChange ->
+                                    minUnitsAxisScreen /= zoomChange
+                                },
+                                evaluateCircleInParametricEquation = {
+                                    viewModel.evaluateInEquations(it)
+                                },
+                                topContent = {
+                                    TopContent(
+                                        tParameter,
+                                        isRunning = isRunning,
+                                        onPlayClicked = {
+                                            val animatorEnabled = try {
+                                                val transitionScale = Settings.Global.getFloat(
+                                                    contentResolver,
+                                                    Settings.Global.TRANSITION_ANIMATION_SCALE
+                                                )
+                                                val windowScale = Settings.Global.getFloat(
+                                                    contentResolver,
+                                                    Settings.Global.WINDOW_ANIMATION_SCALE
+                                                )
+                                                val animatorScale = Settings.Global.getFloat(
+                                                    contentResolver,
+                                                    Settings.Global.ANIMATOR_DURATION_SCALE
+                                                )
+                                                transitionScale == 0f && windowScale == 0f && animatorScale == 0f
+                                            } catch (e: Settings.SettingNotFoundException) {
+                                                false
+                                            }
 
-                                        if (!animatorEnabled) {
-                                            viewModel.setIsRunning(!isRunning)
-                                        }
+                                            if (!animatorEnabled) {
+                                                viewModel.setIsRunning(!isRunning)
+                                            }
 
-                                        // Animations Off behaviour
-                                        dialogState = animatorEnabled
-                                        // Animations On behaviour
-                                    },
-                                    centerButtonClicked = {
-                                        offsetOrigin = Offset.Zero
-                                        minUnitsAxisScreen = 50f
-                                    }
-                                )
-                            }
-                        )
+                                            // Animations Off behaviour
+                                            dialogConfigState = animatorEnabled
+                                            // Animations On behaviour
+                                        },
+                                        centerButtonClicked = {
+                                            offsetOrigin = Offset.Zero
+                                            minUnitsAxisScreen = 50f
+                                        }
+                                    )
+                                }
+                            )
+                            ActionEquationsRow(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(horizontal = 8.dp)
+                                    .fillMaxWidth(),
+                                onListClicked = {
+                                    showListBottomSheet(viewModel)
+                                }
+                            )
+                        }
                         BottomInputEquations(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -234,20 +253,36 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    if (dialogState) {
+                    if (dialogConfigState) {
                         Dialog(
-                            onDismissRequest = { dialogState = false },
+                            onDismissRequest = { dialogConfigState = false },
                             content = {
                                 InfoDialogContent(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(16.dp),
                                     dismissDialog = {
-                                        dialogState = false
+                                        dialogConfigState = false
                                     },
                                     openSettingsClicked = {
                                         openAccessibilitySettings(this)
                                     }
+                                )
+                            },
+                            properties = DialogProperties(
+                                dismissOnBackPress = false,
+                                dismissOnClickOutside = true
+                            )
+                        )
+                    }
+
+                    if (dialogListState){
+                        Dialog(
+                            onDismissRequest = { dialogListState = false },
+                            content = {
+                                ConfigListContent(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
                                 )
                             },
                             properties = DialogProperties(
@@ -345,7 +380,7 @@ fun BoxScope.TopContent(
         modifier = Modifier
             .padding(horizontal = 10.dp)
             .statusBarsPadding(),
-        text = "t: ${String.format("%.2f", tParameter)}",
+        text = "t: ${String.format(Locale.getDefault(), "%.2f", tParameter)}",
         color = MaterialTheme.colorScheme.onBackground
     )
     Row(
@@ -372,6 +407,30 @@ fun BoxScope.TopContent(
         // TODO Add icon to enable zoom here
     }
 
+}
+
+@Composable
+fun ActionEquationsRow(
+    modifier: Modifier = Modifier,
+    onListClicked: () -> Unit = {}
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(
+            space = 8.dp,
+            alignment = Alignment.End
+        )
+    ) {
+        Icon(
+            modifier = Modifier
+                .clickable { onListClicked() },
+            painter = painterResource(R.drawable.ic_list_bullet),
+            tint = MaterialTheme.colorScheme.onBackground,
+            contentDescription = "List of equations"
+        )
+        // TODO Add button to reset equations
+        // TODO Add button to clear equations
+    }
 }
 
 @Preview
@@ -415,5 +474,24 @@ fun InfoDialogContent(
                 Text(text = "Open Settings")
             }
         }
+    }
+}
+
+
+@Preview
+@Composable
+fun ConfigListContent(
+    modifier: Modifier = Modifier,
+    dismissDialog: () -> Unit = {},
+    openSettingsClicked: () -> Unit = {},
+    content: @Composable () -> Unit = {}
+) {
+    Card(
+        modifier = modifier
+            .height(100.dp)
+            .fillMaxWidth(1f),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+
     }
 }

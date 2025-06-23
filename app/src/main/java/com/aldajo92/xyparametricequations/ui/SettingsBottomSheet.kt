@@ -25,6 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aldajo92.xyparametricequations.SettingsViewModel
 import com.aldajo92.xyparametricequations.domain.SettingsType
 import com.aldajo92.xyparametricequations.ui.theme.XYParametricEquationsTheme
+import java.util.Locale
 
 fun Activity.showSettingsBottomSheet(
     circleSizeChange: (Float) -> Unit = {},
@@ -89,6 +90,7 @@ fun Activity.showSettingsBottomSheet(
                         modifier = Modifier.fillMaxWidth(),
                         textTitle = "Circle Size: ${
                             String.format(
+                                Locale.getDefault(),
                                 "%.2f",
                                 currentCircleSize
                             )

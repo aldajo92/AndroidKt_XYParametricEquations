@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import com.aldajo92.xyparametricequations.EquationUIState
+import com.aldajo92.xyparametricequations.ui.model.EquationUIState
 
 // TODO: Move this to XYMainUI.kt
 @Composable
