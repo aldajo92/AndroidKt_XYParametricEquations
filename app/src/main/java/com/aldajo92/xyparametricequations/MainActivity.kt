@@ -226,7 +226,7 @@ class MainActivity : ComponentActivity() {
                                     .padding(horizontal = 8.dp)
                                     .fillMaxWidth(),
                                 onListClicked = {
-                                    showListBottomSheet()
+                                    showListBottomSheet(viewModel)
                                 }
                             )
                         }

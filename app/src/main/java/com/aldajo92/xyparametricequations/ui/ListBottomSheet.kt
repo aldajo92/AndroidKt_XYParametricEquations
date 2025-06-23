@@ -17,18 +17,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.aldajo92.xyparametricequations.MainViewModel
 import com.aldajo92.xyparametricequations.domain.PairEquation
 import com.aldajo92.xyparametricequations.ui.model.EquationUIState
 import com.aldajo92.xyparametricequations.ui.theme.XYParametricEquationsTheme
 
-fun Activity.showListBottomSheet() {
+fun Activity.showListBottomSheet(
+    viewModel: MainViewModel // TODO: Consider inject a ViewModel for this
+) {
     this.showAsBottomSheet { dismissDialog ->
 
         val equations = listOf(
             PairEquation("Archimedean Spiral", "t*cos(t)", "t*sin(t)"),
             PairEquation("Circle", "cos(t)", "sin(t)"),
+            PairEquation("Circle Radius 10", "10*cos(t)", "10*sin(t)"),
+            PairEquation("Ellipse", "10*cos(t)", "20*sin(t)"),
             PairEquation("Sine horizontal", "t", "sin(t)"),
             PairEquation("Sine vertical", "sin(t)", "t"),
+            PairEquation("Sine horizontal, Amplitude 10", "t", "10*sin(t)"),
+            PairEquation("Sine vertical, Amplitude 10", "10*sin(t)", "t"),
         )
 
         XYParametricEquationsTheme {
@@ -54,9 +61,15 @@ fun Activity.showListBottomSheet() {
                         ListItemBottomSheet(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { dismissDialog() },
+                                .clickable { 
+                                    viewModel.setEquationStringX(it.xt)
+                                    viewModel.setEquationStringY(it.yt)
+                                    dismissDialog() 
+                                },
                             pairEquation = it,
                         ) {
+                            viewModel.setEquationStringX(it.xt)
+                            viewModel.setEquationStringY(it.yt)
                             dismissDialog()
                         }
                     }
