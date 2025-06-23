@@ -7,15 +7,15 @@ plugins {
 
 android {
     namespace = "com.aldajo92.xyparametricequations"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.aldajo92.androidanimationscompose"
 
         minSdk = 24
-        targetSdk = 34
-        versionCode = 12
-        versionName = "1.7"
+        targetSdk = 35
+        versionCode = 13
+        versionName = "1.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
