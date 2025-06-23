@@ -6,6 +6,7 @@ import com.aldajo92.xyparametricequations.domain.SettingsAnimation
 import com.aldajo92.xyparametricequations.domain.SettingsType
 import com.aldajo92.xyparametricequations.equationParser.ExpressionParser
 import com.aldajo92.xyparametricequations.repositories.DataRepository
+import com.aldajo92.xyparametricequations.ui.model.EquationUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -117,9 +118,3 @@ class MainViewModel @Inject constructor(
     }
 
 }
-
-data class EquationUIState(
-    val equationString: String = "",
-    val showError: Boolean = false,
-    val errorMessage: String = ""
-)
