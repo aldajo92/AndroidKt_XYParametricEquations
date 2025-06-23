@@ -5,10 +5,14 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.IntentSenderRequest
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.InfiniteRepeatableSpec
 import androidx.compose.animation.core.LinearEasing
@@ -63,6 +67,12 @@ import com.aldajo92.xyparametricequations.ui.model.EquationUIState
 import com.aldajo92.xyparametricequations.ui.showListBottomSheet
 import com.aldajo92.xyparametricequations.ui.showSettingsBottomSheet
 import com.aldajo92.xyparametricequations.ui.theme.XYParametricEquationsTheme
+import com.google.android.play.core.appupdate.AppUpdateInfo
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 
@@ -90,9 +100,19 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
+    
+    private lateinit var appUpdateManager: AppUpdateManager
+    private lateinit var updateLauncher: ActivityResultLauncher<IntentSenderRequest>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize update manager and launcher first
+        initializeInAppUpdate()
+        
+        // Check for updates
+        checkForUpdate()
+
         enableEdgeToEdge()
 
         setContent {
@@ -365,6 +385,80 @@ class MainActivity : ComponentActivity() {
             Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
         }
         context.startActivity(intent)
+    }
+
+    private fun initializeInAppUpdate() {
+        appUpdateManager = AppUpdateManagerFactory.create(this)
+        updateLauncher = registerForActivityResult(
+            ActivityResultContracts.StartIntentSenderForResult()
+        ) { result ->
+            when (result.resultCode) {
+                RESULT_OK -> {
+                    Log.i("UpdateSuccess", "Update completed successfully")
+                }
+                RESULT_CANCELED -> {
+                    Log.i("UpdateCanceled", "Update was canceled by user")
+                }
+                else -> {
+                    Log.e("UpdateError", "Update failed with result code: ${result.resultCode}")
+                }
+            }
+        }
+    }
+
+    private fun checkForUpdate() {
+        val appUpdateInfoTask = appUpdateManager.appUpdateInfo
+        
+        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
+                Log.i("UpdateAvailable", "Update available")
+                
+                // Check if the update type is allowed
+                when {
+                    // For immediate updates (critical fixes)
+                    appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE) -> {
+                        startUpdate(appUpdateInfo, AppUpdateType.IMMEDIATE)
+                    }
+                    // For flexible updates (nice to have features)
+                    appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE) -> {
+                        startUpdate(appUpdateInfo, AppUpdateType.FLEXIBLE)
+                    }
+                    else -> {
+                        Log.i("UpdateAvailable", "No update type allowed")
+                    }
+                }
+            } else {
+                Log.i("UpdateAvailable", "No update available")
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("UpdateError", "Failed to check for updates", exception)
+        }
+    }
+    
+    private fun startUpdate(appUpdateInfo: AppUpdateInfo, updateType: Int) {
+        try {
+            val appUpdateOptions = AppUpdateOptions.newBuilder(updateType).build()
+            
+            appUpdateManager.startUpdateFlowForResult(
+                appUpdateInfo,
+                updateLauncher,
+                appUpdateOptions
+            )
+        } catch (e: Exception) {
+            Log.e("UpdateError", "Failed to start update flow", e)
+        }
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        
+        // Check if there's an update in progress
+        appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                // Resume the update if it was interrupted
+                startUpdate(appUpdateInfo, AppUpdateType.IMMEDIATE)
+            }
+        }
     }
 
 }
