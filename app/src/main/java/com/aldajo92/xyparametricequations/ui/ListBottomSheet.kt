@@ -36,6 +36,7 @@ fun Activity.showListBottomSheet(
             PairEquation("Sine vertical", "sin(t)", "t"),
             PairEquation("Sine horizontal, Amplitude 10", "t", "10*sin(t)"),
             PairEquation("Sine vertical, Amplitude 10", "10*sin(t)", "t"),
+            PairEquation("Sine horizontal, Amplitude 10, Frequency 0.1", "t", "10*sin(2*0.1*PI*t)"),
         )
 
         XYParametricEquationsTheme {

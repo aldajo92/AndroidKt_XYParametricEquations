@@ -132,22 +132,54 @@ class MainActivity : ComponentActivity() {
                         lifecycleOwner = LocalLifecycleOwner.current
                     )
 
+                    val isPaused by viewModel.isPausedStateFlow.collectAsStateWithLifecycle(
+                        lifecycleOwner = LocalLifecycleOwner.current
+                    )
+
                     val tAnimation = remember { Animatable(tParameterStart, Float.VectorConverter) }
-                    LaunchedEffect(isRunning) {
-                        val animationSpec = InfiniteRepeatableSpec<Float>(
-                            tween(
-                                durationMillis = timeDurationMillis.value.toInt(),
-                                easing = LinearEasing
-                            )
-                        )
-                        if (isRunning) {
-                            tAnimation.snapTo(tParameterStart)
-                            tAnimation.animateTo(
-                                targetValue = tParameterEnd,
-                                animationSpec = animationSpec
-                            ) {
-                                viewModel.setTParameter(this.value)
+                    LaunchedEffect(isRunning, isPaused, timeDurationMillis.value) {
+                        if (isRunning && !isPaused) {
+                            while (isRunning && !isPaused) {
+                                val currentT = tAnimation.value
+                                val totalDuration = timeDurationMillis.value.toInt()
+                                val totalRange = tParameterEnd - tParameterStart
+                                
+                                // If we're at or past the end, start from beginning
+                                val startValue = if (currentT >= tParameterEnd) tParameterStart else currentT
+                                val targetValue = tParameterEnd
+                                
+                                // Calculate remaining duration based on remaining distance
+                                val remainingRange = targetValue - startValue
+                                val remainingDuration = (totalDuration * (remainingRange / totalRange)).toInt()
+                                
+                                if (startValue != currentT) {
+                                    tAnimation.snapTo(startValue)
+                                }
+                                
+                                val animationSpec = tween<Float>(
+                                    durationMillis = remainingDuration,
+                                    easing = LinearEasing
+                                )
+                                
+                                tAnimation.animateTo(
+                                    targetValue = targetValue,
+                                    animationSpec = animationSpec
+                                ) {
+                                    viewModel.setTParameter(this.value)
+                                }
+                                
+                                // After reaching the end, continue the loop (will restart from beginning)
+                                if (isRunning && !isPaused && tAnimation.value >= tParameterEnd) {
+                                    tAnimation.snapTo(tParameterStart)
+                                }
                             }
+                        } else if (isPaused) {
+                            // Stop the animation but keep current position
+                            tAnimation.stop()
+                        } else if (!isRunning) {
+                            // Reset paused state and position when stopping
+                            viewModel.setIsPaused(false)
+                            tAnimation.snapTo(tParameterStart)
                         }
                     }
                     // End Animation //////////////////////////////////////////////////////////////////////
@@ -186,6 +218,7 @@ class MainActivity : ComponentActivity() {
                                     TopContent(
                                         tParameter,
                                         isRunning = isRunning,
+                                        isPaused = isPaused,
                                         onPlayClicked = {
                                             val animatorEnabled = try {
                                                 val transitionScale = Settings.Global.getFloat(
@@ -212,6 +245,9 @@ class MainActivity : ComponentActivity() {
                                             // Animations Off behaviour
                                             dialogConfigState = animatorEnabled
                                             // Animations On behaviour
+                                        },
+                                        onPauseClicked = {
+                                            viewModel.setIsPaused(!isPaused)
                                         },
                                         centerButtonClicked = {
                                             offsetOrigin = Offset.Zero
@@ -373,7 +409,9 @@ class MainActivity : ComponentActivity() {
 fun BoxScope.TopContent(
     tParameter: Float = 0f,
     isRunning: Boolean = false,
+    isPaused: Boolean = false,
     onPlayClicked: () -> Unit = {},
+    onPauseClicked: () -> Unit = {},
     centerButtonClicked: () -> Unit = {}
 ) {
     Text(
@@ -397,6 +435,16 @@ fun BoxScope.TopContent(
             tint = MaterialTheme.colorScheme.onBackground,
             contentDescription = "Center origin"
         )
+        // Only show pause button when animation is running
+        if (isRunning) {
+            Icon(
+                modifier = Modifier
+                    .clickable { onPauseClicked() },
+                painter = painterResource(if (isPaused) R.drawable.ic_play_arrow else R.drawable.ic_pause),
+                tint = Color.Blue,
+                contentDescription = if (isPaused) "Resume" else "Pause"
+            )
+        }
         Icon(
             modifier = Modifier
                 .clickable { onPlayClicked() },
