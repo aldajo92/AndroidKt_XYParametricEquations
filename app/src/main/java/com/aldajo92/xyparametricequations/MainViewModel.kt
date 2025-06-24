@@ -29,6 +29,9 @@ class MainViewModel @Inject constructor(
     private val _isRunning = MutableStateFlow(false)
     val isRunningStateFlow get() : StateFlow<Boolean> = _isRunning
 
+    private val _isPaused = MutableStateFlow(false)
+    val isPausedStateFlow get() : StateFlow<Boolean> = _isPaused
+
     val settingsEquationFlow = settingsRepository.getSettingsChangedFlow()
         .map {
             val currentTParameter = _tParameter.value
@@ -115,6 +118,10 @@ class MainViewModel @Inject constructor(
 
     fun setIsRunning(isRunning: Boolean) {
         _isRunning.value = isRunning
+    }
+
+    fun setIsPaused(isPaused: Boolean) {
+        _isPaused.value = isPaused
     }
 
 }

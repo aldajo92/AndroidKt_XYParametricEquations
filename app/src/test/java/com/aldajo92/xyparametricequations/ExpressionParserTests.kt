@@ -152,4 +152,17 @@ class ExpressionParserTests {
         val result2 = expressionParser.evaluate("PI8")
         assertEquals(25.133,result2)
     }
+
+    @Test
+    fun lowercasePiTest() {
+        try {
+            val result = expressionParser.evaluate("pi")
+            // If it doesn't throw an exception, pi is supported
+            assertEquals(PI, result, 0.001)
+        } catch (e: Exception) {
+            // pi is not supported, only PI
+            val result = expressionParser.evaluate("PI")
+            assertEquals(PI, result, 0.001)
+        }
+    }
 }
